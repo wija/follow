@@ -11,7 +11,7 @@ startDate, endDate  remain global?????
 */
 
 
-function Timelines(parentElement, startDate, endDate) {
+function Timelines(parentElement, startDate, endDate, country) {
 
 	this.cachedResultArr = [];
 
@@ -29,6 +29,9 @@ function Timelines(parentElement, startDate, endDate) {
 	this.countryOffsets = {};
 
 	var cnames = dataset.indexRegistry.ADM_LEVEL_1_BY_COUNTRY.getValues().sort();
+	var onlyForCountry = cnames.filter(function(ca) { return ca.split("|")[0] === country; });
+	var withoutCountry = cnames.filter(function(ca) { return ca.split("|")[0] !== country; });
+	cnames = onlyForCountry.concat(withoutCountry);
 	for(var i = 0, n = cnames.length; i < n; i++) {
 		this.countryOffsets[cnames[i]] = 20 + i * this.dimensions.height;
 	}

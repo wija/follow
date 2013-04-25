@@ -48,14 +48,11 @@ loadNewCountry("Nigeria");
 
 function loadNewCountry(country) {
 	
-	if(firstTime) {
-		makeCountryList("countrySelector");
-		firstTime = false;
-	} else {
+	if(!firstTime) {
 		controls.destruct();
 		timelines.destruct();
-		table.destruct();
 		map.destruct();
+		table.destruct();
 	}
 
 	loadDataset(country, 
@@ -68,10 +65,18 @@ function loadNewCountry(country) {
 								  function() {
 								  		timelines = new Timelines("#dataTable", 
 								  								  new Date("1/1/1997"), 
-								  								  new Date("2/28/2013"));
-								  		table = new Table("chronology");
+								  								  new Date("2/28/2013"),
+								  								  country);
+								  		table = new Table("chronology", country);
 										controls = new Controls(ps);
 										controls.attachEventHandlers();
+										if(firstTime) {
+											//this is broken for some reason, so inserted directly into
+											//the html
+											//makeCountryList("countrySelector");
+											firstTime = false;
+										}
+										$('#load-data').modal('hide');
 								  });
 				});
 

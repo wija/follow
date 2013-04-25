@@ -66,7 +66,9 @@ function Controls(queryTemplate) {
 						+ opts[i]
 						+ '</label>';
 		}
-		document.getElementById(idName).innerHTML = htmlStr;
+		s.innerHTML = htmlStr;
+		//A dangerous little hack; figure out how bootstrap does checkboxes
+		$('input[type="checkbox"]').prop('checked', true);
 	}
 }
 
@@ -91,6 +93,10 @@ Controls.prototype.attachEventHandlers = function() {
 
 	this.brush.on("brush", brushed.bind(this));
 
+	self.queryTemplate.evaluate("CONSOLIDATED_NOTES", {selectAll: true});
+	self.queryTemplate.evaluate("EVENT_TYPE", {selectAll: true});
+	brushed.call(this);
+
 	function newTextInput(inputObj, queryTemplate, label) {
 		if(inputObj.value === "") {
 			queryTemplate.evaluate(label, {selectAll: true});	
@@ -112,11 +118,8 @@ Controls.prototype.attachEventHandlers = function() {
 	    	child = child.nextSibling;
 		}
 
-		if(options.length === 0) {
-			queryTemplate.evaluate(label, {selectAll: true});
-		} else {
-			queryTemplate.evaluate(label, {any: options});
-		}
+
+		queryTemplate.evaluate(label, {any: options});
 	}
 
 	function brushed() {

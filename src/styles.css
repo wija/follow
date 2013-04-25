@@ -1,37 +1,4 @@
 <style type="text/css">
-/*
-		div, span .label {
-			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  			font-size: 12px;
-		}
-		span .dateRange {
-			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  			font-size: 12px;
-			background-color:#b4cdcd;
-		}
-		table {
-	  		table-layout: fixed;
-	  		border-collapse: collapse;
-	  		width: 100%;
-		}
-
-		table td, th {
-			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  			font-size: 12px;
-		}
-
-		table td.dateCol, table th.dateCol {
-    		width: 100px;
-		}
-
-		table td.placeCol, table th.placeCol {
-    		width: 100px;
-		}
-
-		table td.descCol, table th.descCol {
-    		width: 500px;
-		}
-*/
 
 .axis path,
 .axis line {
@@ -114,6 +81,20 @@ circle {
     fill: #444;
 }
 
+.logo-main {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 50px;
+    fill: #444;
+    line-height: 110%;
+}
+
+.logo-sub {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 20px;
+    fill: #444;
+    line-height: 110%;
+}
+
 #chronology {
     margin-left: 10px;
     width: 545px;
@@ -126,6 +107,9 @@ circle {
   line-height: 120%;
 }
 
+.current-country-item {
+    background-color: #EDEEF5;
+}
 
 
 /*remove these?*/
