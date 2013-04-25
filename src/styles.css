@@ -1,0 +1,126 @@
+<style type="text/css">
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.brush .extent {
+		stroke: #fff;
+		fill-opacity: .125;
+		shape-rendering: crispEdges;
+}
+
+.selectBox {
+	  fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.tick line {
+    stroke: lightgrey;
+    opacity: 0.7;
+    stroke-width: 1;
+}
+
+.subunit {
+  	fill: none;
+    stroke: #777;
+    stroke-linejoin: round;
+}
+
+.admin1subunit {
+    fill: none;
+    opacity: 0.7;
+}
+
+.urban-area {
+ 		fill: #C4C2C3;
+}
+
+.urban-area-boundary {
+   	fill: #C4C2C3;
+}
+
+circle {
+    opacity: 0.8;
+}
+
+.subunit-boundary {
+    fill: none;
+    stroke: #777;
+    stroke-dasharray: 2,2;
+    stroke-linejoin: round;
+}
+
+.admin1-boundary {
+    fill: none;
+    stroke: #999;
+    stroke-dasharray: 2,2,1,3,4;
+    stroke-linejoin: round;
+}
+
+.subunit-label {
+    fill: #777;
+    fill-opacity: .5;
+    font-size: 20px;
+    font-weight: 300;
+    text-anchor: middle;
+}
+
+.river {
+    fill: none;
+    stroke: #6978D1;
+}
+
+.place, .place-label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    fill: #444;
+}
+
+.logo-main {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 50px;
+    fill: #444;
+    line-height: 110%;
+}
+
+.logo-sub {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 20px;
+    fill: #444;
+    line-height: 110%;
+}
+
+#chronology {
+    margin-left: 10px;
+    width: 545px;
+}
+
+.chronology-item {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  margin-bottom: 12px;
+  line-height: 120%;
+}
+
+.current-country-item {
+    background-color: #EDEEF5;
+}
+
+
+/*remove these?*/
+.background {
+    pointer-events: all;
+    fill: none;	
+}
+
+#circleGroup {
+    pointer-events: all;
+    fill: none;
+}
+
+</style>

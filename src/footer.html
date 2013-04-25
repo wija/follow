@@ -1,0 +1,12 @@
+<script>
+  $(function () {
+    $('#m a[href="#map"]').tab('show');
+  });
+$('a[data-toggle="tab"]').on('shown', function (e) {
+  selectedTab = e.target.attributes.href.value;
+  redrawOnTabSwitch();
+});
+</script>
+
+</body>
+</html>

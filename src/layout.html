@@ -1,0 +1,114 @@
+<div class="container">
+<div class="row">
+
+	<div class="span3">
+
+		<div class="logo-main">FOLLOW</div>
+		<div class="logo-sub">for event data</div>
+
+		<form id="queryForm"> 
+			<span>
+				<div>
+					<br/>
+					<span class="label">Incident Type:</span><br/>
+					<div id="selectIncidentType">
+					</div>
+					<!-- <select id="selectIncidentType" multiple="yes"></select> -->
+				</div>
+				<br/>
+				<div>
+					<span class="label">Search:</span><br/>
+					<input type="text" id="inputDescription">
+					<br/>
+				</div>
+				<div class="btn-group btn-group-vertical">
+					<a href="#load-data" role="button" class="btn btn-primary" data-toggle="modal">Load Country Data</a>
+					<a href="#about" role="button" class="btn btn-primary" data-toggle="modal">About</a>
+				</div>
+			</span>
+
+		</form>	
+
+	</div>
+
+	<div class="span9">
+
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="#map" data-toggle="tab">Map</a></li>
+			<li><a href="#timelines" data-toggle="tab">Timelines</a></li>
+			<li><a href="#chronology" data-toggle="tab">Chronology</a></li>
+		</ul>
+		<div id="dateSelector"></div>
+
+		<div class="tab-content">
+			
+<!-- why do I have the inner divs here??? -->
+
+			<div class="tab-pane" id="timelines">
+		  		<div id="dataTable"></div>
+			</div>
+		  	
+		  	<div class="tab-pane active" id="map">
+		  		<div id="mapTable"></div>
+		  		<br/>
+		  	</div>
+
+		  	<div class="tab-pane" id="chronology">
+		  	</div>
+		
+		</div>
+
+	</div>
+
+</div>
+
+
+<div id="load-data" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="myModalLabel">Load Country Data</h3>
+	</div>
+	<div class="modal-body">
+		<p>Select a country and click "load" to get data and maps for a different country. This may take a few seconds.</p>
+		<div id="countrySelector">
+<label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Algeria" unchecked>Algeria</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Angola" unchecked>Angola</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Benin" unchecked>Benin</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Botswana" unchecked>Botswana</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Burkina_Faso" unchecked>Burkina Faso</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Burundi" unchecked>Burundi</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Cameroon" unchecked>Cameroon</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Central_African_Republic" unchecked>Central African Republic</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Chad" unchecked>Chad</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Democratic_Republic_of_the_Congo" unchecked>Democratic Republic of the Congo</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Djibouti" unchecked>Djibouti</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Egypt" unchecked>Egypt</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Equatorial_Guinea" unchecked>Equatorial Guinea</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Eritrea" unchecked>Eritrea</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Ethiopia" unchecked>Ethiopia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Gabon" unchecked>Gabon</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Gambia" unchecked>Gambia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Ghana" unchecked>Ghana</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Guinea-Bissau" unchecked>Guinea-Bissau</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Guinea" unchecked>Guinea</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Ivory_Coast" unchecked>Ivory Coast</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Kenya" unchecked>Kenya</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Lesotho" unchecked>Lesotho</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Liberia" unchecked>Liberia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Libya" unchecked>Libya</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Madagascar" unchecked>Madagascar</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Malawi" unchecked>Malawi</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Mali" unchecked>Mali</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Mauritania" unchecked>Mauritania</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Morocco" unchecked>Morocco</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Mozambique" unchecked>Mozambique</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Namibia" unchecked>Namibia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Niger" unchecked>Niger</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Nigeria" unchecked>Nigeria</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Republic_of_Congo" unchecked>Republic of Congo</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Rwanda" unchecked>Rwanda</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Senegal" unchecked>Senegal</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Sierra_Leone" unchecked>Sierra Leone</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Somalia" unchecked>Somalia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="South_Africa" unchecked>South Africa</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="South_Sudan" unchecked>South Sudan</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Sudan" unchecked>Sudan</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Swaziland" unchecked>Swaziland</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Tanzania" unchecked>Tanzania</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Togo" unchecked>Togo</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Tunisia" unchecked>Tunisia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Uganda" unchecked>Uganda</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Zambia" unchecked>Zambia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Zimbabwe" unchecked>Zimbabwe</label>
+		</div>
+	</div>
+	<div class="modal-footer">
+    	<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+    	<button class="btn btn-primary" onclick="getRadioButtonValueAndLoad();">Load</button> 
+  	</div>
+</div>
+
+<div id="about" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myAboutModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="myAboutModalLabel">About</h3>
+	</div>
+	<div class="modal-body">
+
+<h4>About the web site</h4>
+
+<p>This web site was developed by <a href="http://github.com/wija">Bill Abresch</a> at <a href="http://www.hackerschool.com">Hacker School</a>.</p>
+
+<h4>About the data</h4>
+
+<p>The data displayed here are from the <a href="http://www.acleddata.com/">Armed Conflict Location and Event Dataset (ACLED)</a> that has been
+developed and maintained by political scientists at Trinity College Dublin. Their dataset on Africa includes
+nearly 70,000 events that took place between 1997 and early 2013.</p>
+<p>ACLED requests that the data be cited as:</p>
+
+<p>Raleigh, Clionadh, Andrew Linke, Håvard Hegre and Joakim Karlsen. 2010. Introducing ACLED-Armed Conflict Location and Event Data. Journal of Peace Research 47(5) 1-10.</p>
+
+<h4>About the maps</h4>
+
+<p>The maps were generated from the shape files developed by the <a href="http://www.naturalearthdata.com/">Natural Earth</a> project.</p>
+
+	</div>
+	<div class="modal-footer">
+    	<button class="btn" data-dismiss="modal" aria-hidden="true">Ok</button>
+  	</div>
+</div>
+
+</div>
+

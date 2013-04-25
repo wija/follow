@@ -1,0 +1,1049 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<script type="text/javascript" src="./vendor/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="./vendor/d3.min.js"></script>
+<script type="text/javascript" src="./vendor/topojson.js"></script>
+<script type="text/javascript" src="./utils/dist-db.js"></script>
+<script type="text/javascript" src="./utils/Palette.js"></script>
+<script src="./vendor/bootstrap.min.js"></script>
+
+<link href="./vendor/bootstrap.min.css" rel="stylesheet" media="screen">
+
+<style type="text/css">
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.brush .extent {
+		stroke: #fff;
+		fill-opacity: .125;
+		shape-rendering: crispEdges;
+}
+
+.selectBox {
+	  fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.tick line {
+    stroke: lightgrey;
+    opacity: 0.7;
+    stroke-width: 1;
+}
+
+.subunit {
+  	fill: none;
+    stroke: #777;
+    stroke-linejoin: round;
+}
+
+.admin1subunit {
+    fill: none;
+    opacity: 0.7;
+}
+
+.urban-area {
+ 		fill: #C4C2C3;
+}
+
+.urban-area-boundary {
+   	fill: #C4C2C3;
+}
+
+circle {
+    opacity: 0.8;
+}
+
+.subunit-boundary {
+    fill: none;
+    stroke: #777;
+    stroke-dasharray: 2,2;
+    stroke-linejoin: round;
+}
+
+.admin1-boundary {
+    fill: none;
+    stroke: #999;
+    stroke-dasharray: 2,2,1,3,4;
+    stroke-linejoin: round;
+}
+
+.subunit-label {
+    fill: #777;
+    fill-opacity: .5;
+    font-size: 20px;
+    font-weight: 300;
+    text-anchor: middle;
+}
+
+.river {
+    fill: none;
+    stroke: #6978D1;
+}
+
+.place, .place-label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    fill: #444;
+}
+
+.logo-main {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 50px;
+    fill: #444;
+    line-height: 110%;
+}
+
+.logo-sub {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 20px;
+    fill: #444;
+    line-height: 110%;
+}
+
+#chronology {
+    margin-left: 10px;
+    width: 545px;
+}
+
+.chronology-item {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  margin-bottom: 12px;
+  line-height: 120%;
+}
+
+.current-country-item {
+    background-color: #EDEEF5;
+}
+
+
+/*remove these?*/
+.background {
+    pointer-events: all;
+    fill: none;	
+}
+
+#circleGroup {
+    pointer-events: all;
+    fill: none;
+}
+
+</style>
+</head>
+<body><div class="container">
+<div class="row">
+
+	<div class="span3">
+
+		<div class="logo-main">FOLLOW</div>
+		<div class="logo-sub">for event data</div>
+
+		<form id="queryForm"> 
+			<span>
+				<div>
+					<br/>
+					<span class="label">Incident Type:</span><br/>
+					<div id="selectIncidentType">
+					</div>
+					<!-- <select id="selectIncidentType" multiple="yes"></select> -->
+				</div>
+				<br/>
+				<div>
+					<span class="label">Search:</span><br/>
+					<input type="text" id="inputDescription">
+					<br/>
+				</div>
+				<div class="btn-group btn-group-vertical">
+					<a href="#load-data" role="button" class="btn btn-primary" data-toggle="modal">Load Country Data</a>
+					<a href="#about" role="button" class="btn btn-primary" data-toggle="modal">About</a>
+				</div>
+			</span>
+
+		</form>	
+
+	</div>
+
+	<div class="span9">
+
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="#map" data-toggle="tab">Map</a></li>
+			<li><a href="#timelines" data-toggle="tab">Timelines</a></li>
+			<li><a href="#chronology" data-toggle="tab">Chronology</a></li>
+		</ul>
+		<div id="dateSelector"></div>
+
+		<div class="tab-content">
+			
+<!-- why do I have the inner divs here??? -->
+
+			<div class="tab-pane" id="timelines">
+		  		<div id="dataTable"></div>
+			</div>
+		  	
+		  	<div class="tab-pane active" id="map">
+		  		<div id="mapTable"></div>
+		  		<br/>
+		  	</div>
+
+		  	<div class="tab-pane" id="chronology">
+		  	</div>
+		
+		</div>
+
+	</div>
+
+</div>
+
+
+<div id="load-data" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="myModalLabel">Load Country Data</h3>
+	</div>
+	<div class="modal-body">
+		<p>Select a country and click "load" to get data and maps for a different country. This may take a few seconds.</p>
+		<div id="countrySelector">
+<label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Algeria" unchecked>Algeria</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Angola" unchecked>Angola</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Benin" unchecked>Benin</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Botswana" unchecked>Botswana</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Burkina_Faso" unchecked>Burkina Faso</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Burundi" unchecked>Burundi</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Cameroon" unchecked>Cameroon</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Central_African_Republic" unchecked>Central African Republic</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Chad" unchecked>Chad</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Democratic_Republic_of_the_Congo" unchecked>Democratic Republic of the Congo</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Djibouti" unchecked>Djibouti</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Egypt" unchecked>Egypt</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Equatorial_Guinea" unchecked>Equatorial Guinea</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Eritrea" unchecked>Eritrea</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Ethiopia" unchecked>Ethiopia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Gabon" unchecked>Gabon</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Gambia" unchecked>Gambia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Ghana" unchecked>Ghana</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Guinea-Bissau" unchecked>Guinea-Bissau</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Guinea" unchecked>Guinea</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Ivory_Coast" unchecked>Ivory Coast</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Kenya" unchecked>Kenya</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Lesotho" unchecked>Lesotho</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Liberia" unchecked>Liberia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Libya" unchecked>Libya</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Madagascar" unchecked>Madagascar</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Malawi" unchecked>Malawi</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Mali" unchecked>Mali</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Mauritania" unchecked>Mauritania</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Morocco" unchecked>Morocco</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Mozambique" unchecked>Mozambique</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Namibia" unchecked>Namibia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Niger" unchecked>Niger</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Nigeria" unchecked>Nigeria</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Republic_of_Congo" unchecked>Republic of Congo</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Rwanda" unchecked>Rwanda</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Senegal" unchecked>Senegal</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Sierra_Leone" unchecked>Sierra Leone</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Somalia" unchecked>Somalia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="South_Africa" unchecked>South Africa</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="South_Sudan" unchecked>South Sudan</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Sudan" unchecked>Sudan</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Swaziland" unchecked>Swaziland</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Tanzania" unchecked>Tanzania</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Togo" unchecked>Togo</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Tunisia" unchecked>Tunisia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Uganda" unchecked>Uganda</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Zambia" unchecked>Zambia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Zimbabwe" unchecked>Zimbabwe</label>
+		</div>
+	</div>
+	<div class="modal-footer">
+    	<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+    	<button class="btn btn-primary" onclick="getRadioButtonValueAndLoad();">Load</button> 
+  	</div>
+</div>
+
+<div id="about" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myAboutModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="myAboutModalLabel">About</h3>
+	</div>
+	<div class="modal-body">
+
+<h4>About the web site</h4>
+
+<p>This web site was developed by <a href="http://github.com/wija">Bill Abresch</a> at <a href="http://www.hackerschool.com">Hacker School</a>.</p>
+
+<h4>About the data</h4>
+
+<p>The data displayed here are from the <a href="http://www.acleddata.com/">Armed Conflict Location and Event Dataset (ACLED)</a> that has been
+developed and maintained by political scientists at Trinity College Dublin. Their dataset on Africa includes
+nearly 70,000 events that took place between 1997 and early 2013.</p>
+<p>ACLED requests that the data be cited as:</p>
+
+<p>Raleigh, Clionadh, Andrew Linke, Håvard Hegre and Joakim Karlsen. 2010. Introducing ACLED-Armed Conflict Location and Event Data. Journal of Peace Research 47(5) 1-10.</p>
+
+<h4>About the maps</h4>
+
+<p>The maps were generated from the shape files developed by the <a href="http://www.naturalearthdata.com/">Natural Earth</a> project.</p>
+
+	</div>
+	<div class="modal-footer">
+    	<button class="btn" data-dismiss="modal" aria-hidden="true">Ok</button>
+  	</div>
+</div>
+
+</div>
+
+<script type="text/javascript">
+
+p = new Palette();
+dateFormat = d3.time.format("%x");
+
+mapWidth = 700;
+mapHeight = 420;
+
+startDate = null;
+endDate = null;
+
+selectedTab = "#map";
+
+masterCachedResultArr = [];
+function redraw(resultArr) {
+	switch(selectedTab) {
+		case "#map":
+			map.redraw(resultArr);
+			break;
+		case "#timelines":
+			timelines.redraw(resultArr);
+			break;
+		case "#chronology":
+			table.redraw(resultArr);
+		case "#country-selector":
+			break;
+	}
+	masterCachedResultArr = resultArr;
+}
+
+function redrawOnTabSwitch() {
+	switch(selectedTab) {
+		case "#map":
+			map.redraw(masterCachedResultArr);
+			break;
+		case "#timelines":
+			timelines.redraw(masterCachedResultArr);
+			break;
+		case "#chronology":
+			table.redraw(masterCachedResultArr);
+		case "#country-selector":
+			break;
+	}
+}
+
+firstTime = true;
+loadNewCountry("Nigeria");
+
+function loadNewCountry(country) {
+	
+	if(!firstTime) {
+		controls.destruct();
+		timelines.destruct();
+		map.destruct();
+		table.destruct();
+	}
+
+	loadDataset(country, 
+				mapHeight, mapWidth, 
+				redraw,
+				function() {
+					map = new Map(country, 
+								  mapWidth, mapHeight, 
+								  "#mapTable", 
+								  function() {
+								  		timelines = new Timelines("#dataTable", 
+								  								  new Date("1/1/1997"), 
+								  								  new Date("2/28/2013"),
+								  								  country);
+								  		table = new Table("chronology", country);
+										controls = new Controls(ps);
+										controls.attachEventHandlers();
+										if(firstTime) {
+											//this is broken for some reason, so inserted directly into
+											//the html
+											//makeCountryList("countrySelector");
+											firstTime = false;
+										}
+										$('#load-data').modal('hide');
+								  });
+				});
+
+}
+//CountryList.js
+
+//parentElement = "countrySelector"
+
+function makeCountryList(parentElement) {
+	
+	var countryList = ["Algeria", "Angola", "Benin", "Botswana", "Burkina Faso", "Burundi", "Cameroon", 
+		"Central African Republic","Chad", "Democratic Republic of the Congo", "Djibouti", "Egypt", 
+		"Equatorial Guinea", "Eritrea", "Ethiopia","Gabon", "Gambia", "Ghana", "Guinea-Bissau", "Guinea", 
+		"Ivory Coast", "Kenya", "Lesotho", "Liberia", "Libya", "Madagascar", "Malawi", "Mali", 
+		"Mauritania", "Morocco", "Mozambique", "Namibia", "Niger", "Nigeria", "Republic of Congo", 
+		"Rwanda", "Senegal", "Sierra Leone", "Somalia", "South Africa", "South Sudan", "Sudan", 
+		"Swaziland", "Tanzania", "Togo", "Tunisia", "Uganda", "Zambia", "Zimbabwe"];
+
+		var s = document.getElementById(parentElement);
+		var htmlStr = "";
+		for(var i = 0; i < countryList.length; i++) {
+			htmlStr += '<label class="radio">'
+						+ '<input type="radio" name="countryOptionsRadios" id="countryOptions" value="' + countryList[i].replace(/ /g,'_') + '" unchecked>'
+						+ countryList[i]
+						+ '</label>';
+		}
+		s.innerHTML = htmlStr;
+
+/*
+	var s ="";
+	countryList.forEach(function(v) { 
+		s += "<div><a onclick=\"loadNewCountry('" + v.replace(/ /g, "_") + "');\">" + v + "</a></div>"; 
+	});
+*/
+	document.getElementById(parentElement).innerHTML = s;
+}
+
+function getRadioButtonValueAndLoad() {
+	var radios = document.getElementsByName("countryOptionsRadios");
+
+	for (var i = 0, length = radios.length; i < length; i++) {
+	    if (radios[i].checked) {
+	    	loadNewCountry(radios[i].value.replace(/ /g, "_"));
+	    }
+	}
+}
+//loadDataset.js
+
+//dataset left global for now
+/*
+qtCallback =
+function(resultArr) { 
+				renderResults("dataTable", resultArr);
+			}
+
+callback = createInterface();
+		   drawMap(country);
+*/
+function loadDataset(country, mapHeight, mapWidth, qtCallback, callback) {
+
+	var jsonArray,
+		jsonReady;
+
+	$(window).unbind('JSONready');
+
+	$.getJSON('data/' + country + '.json', function(response) {
+
+		/* hacky way to jitter the points because too much overlap due to imprecise coordinates */
+		var lonJitterBase = 0.01 * mapWidth,
+			latJitterBase = 0.01 * mapHeight;
+		for(var i = 0, n = response.length; i < n; i++) {
+				response[i].LATITUDE_JITTER = (Math.random() - 0.5) * latJitterBase;
+				response[i].LONGITUDE_JITTER = (Math.random() - 0.5) * lonJitterBase;
+		}
+
+   		jsonArray = response;
+   		$(window).trigger('JSONready');
+	});
+
+	jsonReady = $(window).on('JSONready', function() {
+
+		dataset = new db.Collection();
+
+		dataset.loadData(
+
+		  jsonArray,
+
+			  { FATALITIES:  		{ index: db.NumberIndex },
+			    COUNTRY:     		{ index: db.CategoryIndex },
+			    ADM_LEVEL_1_BY_COUNTRY: { index: db.CategoryIndex,
+			    					  	  opts: { keyExtractor: function(o) { return o.COUNTRY + '|' + o.ADM_LEVEL_1; }}}, 
+			    EVENT_DATE:  		{ index: db.DateIndex }, 
+			    EVENT_TYPE:  		{ index: db.CategoryIndex },
+			    CONSOLIDATED_NOTES: { index: db.TextIndex }});
+
+		ps = new db.QueryTemplate(
+
+			dataset, 
+
+			db.qtIntersect(
+				db.qtField("EVENT_TYPE"), 
+				db.qtField("EVENT_DATE"),
+				db.qtField("CONSOLIDATED_NOTES")),
+
+			qtCallback);
+
+		callback();
+	});
+}//Map.js
+
+/* parentElement = #mapTable
+	this.mapWidth = 700;
+	this.mapHeight = 420;
+	callback =
+		drawTimelines();
+		enableEventHandlers();
+		intializeControls();
+*/
+!function(scope) {
+
+function Map(country, mapWidth, mapHeight, parentElement, callback) {
+
+	this.mapWidth = mapWidth;
+	this.mapHeight = mapHeight;
+
+	this.cachedResultArr = [];
+
+	this.mapContainer = 
+		d3.select(parentElement).append("svg")
+	      .attr("width", this.mapWidth)
+	      .attr("height", this.mapHeight)
+	      .attr("id", "mapTableSvg");
+
+	//fix this
+	this.mapContainer.append("defs").append("clipPath")
+		.attr("id", "mapClip")
+	    .append("rect")
+	    	.attr("width", this.mapWidth)
+	    	.attr("height", this.mapHeight);
+
+	this.svgMap = this.mapContainer.append("g")
+	    .attr("clip-path", "url(#mapClip)");
+
+	var filename;
+	if(country === "Democratic_Republic_of_the_Congo") {
+		filename = "Congo.json"; 
+	} else if(country === "Republic_of_Congo") {
+		filename = "Republic_of_the_Congo.json";
+	} else {
+		filename = country + ".json"; 
+	}
+
+	var self = this;
+
+	d3.json("maps/bounding_boxes.json", function(error, boundingBoxes) {
+
+		if(country === "Democratic_Republic_of_the_Congo") {
+			var lookupVal = "Congo"; 
+		} else if(country === "Republic_of_Congo") {
+			var lookupVal = "Republic_of_the_Congo";
+		} else {
+			var lookupVal = country; 
+		}
+
+		var boundingBox = boundingBoxes.filter(function(o) { return o.countryName === lookupVal.replace(/_/g,' '); })[0];
+
+		d3.json("maps/" + filename, function(error, jsonMap) {
+
+		 	var subunits = topojson.object(jsonMap, jsonMap.objects.subunits),
+		 		admin1 = topojson.object(jsonMap, jsonMap.objects.admin1),
+		    	places = topojson.object(jsonMap, jsonMap.objects.places),
+		   		rivers = topojson.object(jsonMap, jsonMap.objects.rivers),
+		   		urbanAreas = topojson.object(jsonMap, jsonMap.objects.urban);
+
+		      //see http://stackoverflow.com/questions/14492284/center-a-map-in-d3-given-a-geojson-object
+
+		    	var scale  = 45 * this.mapWidth / (boundingBox.east - boundingBox.west);
+		    	var offset  = [this.mapWidth / 2 - 65, this.mapHeight / 2];
+		    	var center = [ boundingBox.west + (boundingBox.east - boundingBox.west)/2, 
+		    				   boundingBox.south + (boundingBox.north - boundingBox.south)/2];
+
+		    self.projection = d3.geo.mercator()
+		        				.scale(scale)
+		        				.center(center)
+		        				.translate(offset);
+
+			var path = d3.geo.path()
+			    .projection(self.projection)
+			    .pointRadius(2);
+
+			self.svgMap.append("rect")
+		    	.attr("class", "background")
+		    	.attr("width", self.mapWidth)
+		    	.attr("height", self.mapHeight);
+
+			self.svgMap.selectAll(".subunit")
+				.data(subunits.geometries)
+			.enter().append("path")
+				.attr("class", function(d) { return "subunit " + d.id; })
+				.attr("d", path);
+
+			self.svgMap.selectAll(".river")
+				.data(rivers.geometries)
+			.enter().append("path")
+				.attr("class", "river")
+				.attr("style", function(d) { return "stroke-width:" + (d.properties.strokeweig * 2.5);})
+				.attr("d", path);
+
+			self.svgMap.selectAll(".urbanArea")
+				.data(urbanAreas.geometries)
+			.enter().append("path")
+				.attr("class", "urban-area")
+			  	.attr("d", path);
+
+		  	//is this part necessary?
+		  	self.svgMap.append("path")
+		    	.datum(topojson.mesh(jsonMap, jsonMap.objects.urban, function(a, b) { return a !== b; }))
+		    	.attr("d", path)
+		    	.attr("class", "urban-area-boundary");
+
+			self.svgMap.append("path")
+				.datum(topojson.mesh(jsonMap, jsonMap.objects.subunits, function(a, b) { return a !== b; }))
+				.attr("d", path)
+				.attr("class", "subunit-boundary");
+
+			self.svgMap.selectAll(".admin1subunit")
+				.data(admin1.geometries)
+			.enter().append("path")
+				.attr("class", function(d) { return "admin1subunit " + d.id; })
+				.attr("d", path);
+
+			self.svgMap.append("path")
+				.datum(topojson.mesh(jsonMap, jsonMap.objects.admin1, function(a, b) { return a !== b; }))
+				.attr("d", path)
+				.attr("class", "admin1-boundary");
+
+			self.svgMap.append("path")
+				.datum(places)
+				.attr("d", path)
+				.attr("class", "place");
+
+			self.svgMap.selectAll(".place-label")
+				.data(places.geometries)
+			.enter().append("text")
+				.attr("class", "place-label")
+				.attr("transform", function(d) { return "translate(" + self.projection(d.coordinates) + ")"; })
+				.attr("x", function(d) { return d.coordinates[0] > -1 ? 6 : -6; })
+				.attr("dy", ".35em")
+				.style("text-anchor", function(d) { return d.coordinates[0] > -1 ? "start" : "end"; })
+				.text(function(d) { return d.properties.name; });
+
+			self.mapContainer.append("g")
+				.attr("id", "circleGroup");
+
+			callback();
+
+		});
+	});
+}
+
+Map.prototype.redraw = function(resultArr) {
+		
+	var diffs = db.sets.complements(this.cachedResultArr, resultArr),
+		enter = diffs[0],
+		exit = diffs[1];
+
+	var svgMapNode = document.getElementById("circleGroup");
+	//var svgMapNode = document.getElementById("svgMap");
+
+	var enterFragment = document.createDocumentFragment();
+
+	for(var i = 0, n = enter.length; i < n; i++) {
+		
+		var d = enter[i]; 
+		var proj = this.projection([d.LONGITUDE, d.LATITUDE]);
+
+		var circle = document.createElementNS(svgMapNode.namespaceURI, "circle");
+		circle.setAttributeNS(null, "id", d.MY_EVENT_ID);
+		circle.setAttributeNS(null, "cy", proj[1] + d.LATITUDE_JITTER);
+		circle.setAttributeNS(null, "cx", proj[0] + d.LONGITUDE_JITTER);
+		circle.setAttributeNS(null, "r", 3);
+		circle.setAttributeNS(null, "fill", p.getColor(d.EVENT_TYPE));
+		enterFragment.appendChild(circle);
+	}
+
+	svgMapNode.appendChild(enterFragment);
+
+	//**CAN REINTRODUCE THIS: JUST REMOVE AND REINSERT THE PARENT
+	//**WILL DOCUMENT.GETELEMENTID WORK WHEN ITS REMOVED?
+	//var insertFunction = removeToInsertLater(svgMapNode);
+	for(var i =0, n = exit.length; i < n; i++) {
+		var d = exit[i];
+		svgMapNode.removeChild(document.getElementById(d.MY_EVENT_ID));
+	}
+	//insertFunction();
+
+	//from https://developers.google.com/speed/articles/javascript-dom
+	/**
+	 * Remove an element and provide a function that inserts it into its original position
+	 * @param element {Element} The element to be temporarily removed
+	 * @return {Function} A function that inserts the element into its original position
+	 **/
+	function removeToInsertLater(element) {
+		var parentNode = element.parentNode;
+		var nextSibling = element.nextSibling;
+		parentNode.removeChild(element);
+		return function() {
+			if (nextSibling) {
+				parentNode.insertBefore(element, nextSibling);
+	    	} else {
+	      		parentNode.appendChild(element);
+	    	}
+	  	};
+	}
+
+	this.cachedResultArr = resultArr;
+}
+
+Map.prototype.destruct = function() {
+	this.mapContainer.remove();
+}
+
+scope.Map = Map;
+
+}(window);
+
+//Timelines.js
+
+/*
+constructor:
+parentElement = "#dataTable"
+startDate = new Date("1/1/1997")
+endDate = new Date("2/28/2013")
+
+draw:
+startDate, endDate  remain global?????
+*/
+
+
+function Timelines(parentElement, startDate, endDate, country) {
+
+	this.cachedResultArr = [];
+
+	//has devolved into magic numbers at this point
+	//currently duplicated in Controls.js
+	this.dimensions = { width: 700, height: 40 };  //height=40 was for rendering each separately
+	this.padding = { outerPaddingWidth: 5, placenameWidth: 70, innerPaddingWidth: 5,
+   				   outerPaddingHeight: 2, labelHeight: 10, tickToLabelHeight: 3, tickHeight: 5, 
+   				   axisToIncidentsHeight: 5 };
+	this.corners = { xTimelineLeft: this.padding.outerPaddingWidth + this.padding.placenameWidth + this.padding.innerPaddingWidth,
+   				   xTimelineRight: this.dimensions.width - this.padding.outerPaddingWidth,
+   				   yTimelineTop: this.padding.outerPaddingHeight,
+   				   yTimelineBottom: this.dimensions.height - (this.padding.outerPaddingHeight + this.padding.labelHeight + this.padding.tickToLabelHeight + this.padding.tickHeight) };
+
+	this.countryOffsets = {};
+
+	var cnames = dataset.indexRegistry.ADM_LEVEL_1_BY_COUNTRY.getValues().sort();
+	var onlyForCountry = cnames.filter(function(ca) { return ca.split("|")[0] === country; });
+	var withoutCountry = cnames.filter(function(ca) { return ca.split("|")[0] !== country; });
+	cnames = onlyForCountry.concat(withoutCountry);
+	for(var i = 0, n = cnames.length; i < n; i++) {
+		this.countryOffsets[cnames[i]] = 20 + i * this.dimensions.height;
+	}
+	var maxOffset = 20 + i * this.dimensions.height;
+
+	var totalHeight = maxOffset + 20 - 10;
+
+	var self = this;
+	var xScale = (function() {
+		return d3.time.scale()
+					  .domain([startDate.getTime(), endDate.getTime()])
+	            	  .range([self.corners.xTimelineLeft, self.corners.xTimelineRight])
+	            	  .clamp(true);
+	})();
+
+	this.chart = d3.select(parentElement).append("svg")
+					.attr("class", "chart")
+					.attr("width", 555) //this.dimensions.width)
+					.attr("height", totalHeight);
+
+	var splitCnames = cnames.map(function(s) { return s.split('|'); });
+
+	for(var i = 0, n = cnames.length; i < n; i++) {
+		this.chart.append("text")
+			.text(splitCnames[i][1])
+			.attr("x", this.padding.outerPaddingWidth)
+			.attr("y", 20 + i * this.dimensions.height + (this.dimensions.height / 3))
+			.attr("font-size", this.dimensions.height / 4)
+			.attr("font-family", "sans-serif")
+			.attr("font-weight", "bold");
+		this.chart.append("text")
+			.text(splitCnames[i][0])
+			.attr("x", this.padding.outerPaddingWidth)
+			.attr("y", 20 + i * this.dimensions.height + 2 * (this.dimensions.height / 3))
+			.attr("font-size", this.dimensions.height / 4)
+			.attr("font-family", "sans-serif");
+    }
+
+	this.tl = this.chart.append("g")
+		.attr("class", "axis")
+		.attr("transform", "translate(0,15)") //+ (maxOffset + this.corners.yTimelineBottom) + ")")
+		.style("font-size", this.padding.labelHeight)
+		.style("font-family", "sans-serif");
+
+	this.tl.call(d3.svg.axis()
+		.scale(xScale)
+		.tickFormat(d3.time.format("%b %Y"))
+		.ticks(5)
+		.orient("top")
+		.tickSize(-10) //(-totalHeight)
+		//.tickSize(this.padding.tickHeight)
+		.tickPadding(this.padding.tickToLabelHeight));
+}
+
+Timelines.prototype.redraw = function(resultArr) {
+		
+	var diffs = db.sets.complements(this.cachedResultArr, resultArr),
+		enter = diffs[0],
+		exit = diffs[1];
+
+	var self = this;
+
+	var xScale = (function() {
+		return d3.time.scale()
+				.domain([startDate, endDate])
+	    		.range([self.corners.xTimelineLeft, 555])
+				.clamp(true);
+	})();
+
+    this.tl.call(d3.svg.axis()
+		.scale(xScale)
+		.tickFormat(d3.time.format("%b %Y"))
+		.ticks(5)
+		.orient("top")
+		.tickSize(-10) //(-totalHeight)
+		//.tickSize(this.padding.tickHeight)
+		.tickPadding(this.padding.tickToLabelHeight));
+
+
+	var cs = this.chart.selectAll("circle")
+				  .data(resultArr, function(d) { return d.MY_EVENT_ID; });
+
+	cs.enter().insert("circle")
+		.attr("cx", function(d, i) { return xScale(dateFormat.parse(d.EVENT_DATE).getTime()); })
+		.attr("cy", function(d) { return self.countryOffsets[d.COUNTRY+'|'+d.ADM_LEVEL_1] + self.corners.yTimelineBottom - self.padding.axisToIncidentsHeight; })
+		.attr("r", 3)
+		.attr("fill", function(d) { return p.getColor(d.EVENT_TYPE); });
+
+    cs.attr("cx", function(d, i) { 
+    	return xScale(dateFormat.parse(d.EVENT_DATE).getTime()); 
+    });
+
+	cs.exit().remove();
+
+	this.cachedResultArr = resultArr;
+
+}
+
+Timelines.prototype.destruct = function() {
+	this.chart.remove();
+}
+
+
+//Table.js
+
+/*
+			  { FATALITIES:  		{ index: db.NumberIndex },
+			    COUNTRY:     		{ index: db.CategoryIndex },
+			    ADM_LEVEL_1_BY_COUNTRY: { index: db.CategoryIndex,
+			    					  	  opts: { keyExtractor: function(o) { return o.COUNTRY + '|' + o.ADM_LEVEL_1; }}}, 
+			    EVENT_DATE:  		{ index: db.DateIndex }, 
+			    EVENT_TYPE:  		{ index: db.CategoryIndex },
+			    CONSOLIDATED_NOTES: { index: db.TextIndex }});
+
+*/
+
+function Table(parentElement, country) {
+
+	this.parentElement = parentElement;
+	this.country = country;
+
+	this.cachedResultArr = [];
+	
+	this.tableContainer = document.createElement("div");
+	this.tableContainer.setAttribute("id", "tableContainer");
+	document.getElementById(this.parentElement).appendChild(this.tableContainer);
+}
+
+Table.prototype.redraw = function(resultArr) {
+	
+	var diffs = db.sets.complements(this.cachedResultArr, resultArr),
+		enter = diffs[0],
+		exit = diffs[1];
+
+	var fragment = document.createDocumentFragment();
+	//for(var i = 0, n = enter.length; i < n; i++) {
+	//	fragment.appendChild(makeNewDiv(enter[i]));
+	//}
+	fragment = batchInsert(this.cachedResultArr, enter, 
+						   this.tableContainer.children, 
+						   fragment, makeNewDiv.bind(this),
+						   function(o) { return new Date(o.EVENT_DATE).getTime(); });
+	this.tableContainer.appendChild(fragment);
+
+	for(var i = 0, n = exit.length; i < n; i++) {
+		this.tableContainer.removeChild(this.tableContainer.children.namedItem(exit[i].MY_EVENT_ID));
+	}
+
+	this.cachedResultArr = resultArr;
+}
+
+Table.prototype.destruct = function() {
+	document.getElementById(this.parentElement).removeChild(this.tableContainer);
+}
+
+function makeNewDiv(o) {
+
+	var newDiv = document.createElement("div");
+	newDiv.setAttribute("id", o.MY_EVENT_ID);
+	//newDiv.setAttribute("data-milliseconds", format.parse(row.startdate).getTime());
+	if(o.COUNTRY === this.country) {
+		newDiv.setAttribute("class", "chronology-item current-country-item");
+ 	} else {
+		newDiv.setAttribute("class", "chronology-item");
+	}
+	var Act1Act2DescSrc = o.CONSOLIDATED_NOTES.split("|");
+	var newContent = "<b>" + o.EVENT_DATE
+				   + " (" + o.COUNTRY + ", " + o.ADM_LEVEL_1 + ")</b><br/>"
+				   + "<i>Description:</i> " + Act1Act2DescSrc[2] + "<br/>"
+				   + (Act1Act2DescSrc[0] === "" 
+				   		? "" 
+				   		: "<i>Actors</i>: " + Act1Act2DescSrc[0]
+				   		  + (Act1Act2DescSrc[1] === ""
+				   		  		? "<br/>"
+				   		  		: " & " + Act1Act2DescSrc[1] + "<br/>")) 
+				   + "<i>Source:</i> " +  Act1Act2DescSrc[3] + "<br/>";
+	newDiv.innerHTML = newContent;
+	return newDiv;
+}
+
+function batchInsert(cachedResultArr, enter, htmlCollect, fragment, makeNewDiv, keyExtractor) {
+	
+	var i1 = 0,
+		i2 = 0, 
+		len1 = cachedResultArr.length, 
+		len2 = enter.length;
+	
+	while(i1 < len1 && i2 < len2) {
+		if(keyExtractor(cachedResultArr[i1]) < keyExtractor(enter[i2])) {
+			//result.push(cachedResultArr[i1]);
+			i1++;
+		} else { // cachedResultArr[i1] > enter[i2]
+			htmlCollect[i1].parentNode.insertBefore(makeNewDiv(enter[i2]), htmlCollect[i1 === len1 ? len1 : i1]);
+			i1 = (i1 === i2) ? i1 + 1 : i1;
+			i2++;
+		}
+	}
+
+	if(i2 < len2) { 
+		for(; i2 < len2; i2++) { 
+			fragment.appendChild(makeNewDiv(enter[i2]));
+		}
+	}
+	return fragment;
+}
+
+//Controls.js
+
+//need to get date handling under control
+
+//queryTemplate is actually still global (ps)
+
+
+function Controls(queryTemplate) {
+
+	this.queryTemplate = queryTemplate;
+
+	makeCheckBoxes("selectIncidentType", "EVENT_TYPE");
+
+	//has devolved into magic numbers at this point
+	//currently duplicated in Controls.js
+	this.dimensions = { width: 700, height: 40 };  //height=40 was for rendering each separately
+	this.padding = { outerPaddingWidth: 5, placenameWidth: 70, innerPaddingWidth: 5,
+   				   outerPaddingHeight: 2, labelHeight: 10, tickToLabelHeight: 3, tickHeight: 5, 
+   				   axisToIncidentsHeight: 5 };
+	this.corners = { xTimelineLeft: this.padding.outerPaddingWidth + this.padding.placenameWidth + this.padding.innerPaddingWidth,
+   				   xTimelineRight: this.dimensions.width - this.padding.outerPaddingWidth,
+   				   yTimelineTop: this.padding.outerPaddingHeight,
+   				   yTimelineBottom: this.dimensions.height - (this.padding.outerPaddingHeight + this.padding.labelHeight + this.padding.tickToLabelHeight + this.padding.tickHeight) };
+
+	var selectorScale = d3.time.scale().range([this.corners.xTimelineLeft - this.padding.placenameWidth, this.corners.xTimelineRight - this.padding.placenameWidth -  this.padding.placenameWidth]),
+		selectorAxis = d3.svg.axis().scale(selectorScale).orient("bottom");
+	selectorScale.domain([dateFormat.parse("1/1/1997"), dateFormat.parse("2/28/2013")]);
+
+	this.brush = d3.svg.brush()
+			  		.x(selectorScale)
+			  		.extent([dateFormat.parse("1/1/2004"), dateFormat.parse("1/1/2005")]);
+
+	this.context = d3.select("#dateSelector").append("svg")
+		.attr("width", this.dimensions.width)
+		.attr("height", 40);
+
+	this.context.append("rect")
+		  .classed("selectBox", true)
+	      .attr("x", this.corners.xTimelineLeft - this.padding.placenameWidth)
+	      .attr("width", this.corners.xTimelineRight - this.corners.xTimelineLeft - this.padding.placenameWidth)
+	      .attr("y", 0) 
+	      .attr("height", 20);
+	     
+	this.context.append("g")
+	      .attr("class", "axis")
+	      .attr("transform", "translate(0," + 20 + ")")
+	      .style("font-size", this.padding.labelHeight)
+	      .style("font-family", "sans-serif")
+	      .call(selectorAxis);
+
+	this.context.append("g")
+	      .attr("class", "x brush")
+	      .call(this.brush)
+	    .selectAll("rect")
+	      .attr("y", 1)
+	      .attr("height", 18);
+
+	//not really so great that this calls dataset by name
+	function makeCheckBoxes(idName, fieldName) {
+		var s = document.getElementById(idName);
+		var opts = dataset.indexRegistry[fieldName].getValues().sort();
+		var htmlStr = "";
+		for(var i = 0; i < opts.length; i++) {
+			htmlStr += '<label class="checkbox">'
+						+ '<input type="checkbox" data-value="' + opts[i] + '">'
+						+ opts[i]
+						+ '</label>';
+		}
+		s.innerHTML = htmlStr;
+		//A dangerous little hack; figure out how bootstrap does checkboxes
+		$('input[type="checkbox"]').prop('checked', true);
+	}
+}
+
+Controls.prototype.destruct = function() {
+	//is this necessary? and what about the d3 brush listener?
+	document.getElementById("selectIncidentType").removeEventListener("change", this.selectIncidentTypeListener);
+	document.getElementById("inputDescription").removeEventListener("keyup", this.inputDescriptionListener);
+	this.context.remove();
+}
+
+Controls.prototype.attachEventHandlers = function() {
+
+	var self = this;
+	this.selectIncidentTypeListener = function() { newMultiSelect(this,self.queryTemplate,"EVENT_TYPE"); };
+	this.inputDescriptionListener = function() { newTextInput(this,self.queryTemplate,"CONSOLIDATED_NOTES"); };
+
+	document.getElementById("selectIncidentType")
+		.addEventListener("change", this.selectIncidentTypeListener);
+
+	document.getElementById("inputDescription")
+		.addEventListener("keyup", this.inputDescriptionListener);
+
+	this.brush.on("brush", brushed.bind(this));
+
+	self.queryTemplate.evaluate("CONSOLIDATED_NOTES", {selectAll: true});
+	self.queryTemplate.evaluate("EVENT_TYPE", {selectAll: true});
+	brushed.call(this);
+
+	function newTextInput(inputObj, queryTemplate, label) {
+		if(inputObj.value === "") {
+			queryTemplate.evaluate(label, {selectAll: true});	
+		} else {
+			queryTemplate.evaluate(label, {autoCompleteSearch: inputObj.value});
+		}
+	}
+
+	function newMultiSelect(selectObj, queryTemplate, label) {
+
+		var options = [];
+		var child = selectObj.firstChild;
+
+		while(child) {
+	    	if(child.children[0].checked) {
+	    		options.push(child.children[0].getAttribute("data-value"));
+	    	}
+	    	
+	    	child = child.nextSibling;
+		}
+
+
+		queryTemplate.evaluate(label, {any: options});
+	}
+
+	function brushed() {
+
+		var ext = this.brush.extent();
+
+		//made at least temporarily global so can use to calculate scales in Timelines
+		startDate = ext[0].getTime(); 
+		endDate = ext[1].getTime();
+		this.queryTemplate.evaluate("EVENT_DATE", {inRange: [dateFormat(ext[0]), dateFormat(ext[1])]});
+	}
+
+}
+
+
+
+</script><script>
+  $(function () {
+    $('#m a[href="#map"]').tab('show');
+  });
+$('a[data-toggle="tab"]').on('shown', function (e) {
+  selectedTab = e.target.attributes.href.value;
+  redrawOnTabSwitch();
+});
+</script>
+
+</body>
+</html>
