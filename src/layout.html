@@ -1,0 +1,61 @@
+<div class="container">
+<div class="row">
+
+	<div class="span3">
+
+		<form id="queryForm"> 
+			<span>
+				<div>
+					<span class="label">Incident Type:</span><br/>
+					<div id="selectIncidentType">
+					</div>
+					<!-- <select id="selectIncidentType" multiple="yes"></select> -->
+				</div>
+
+				<div>
+					<span class="label">Description:</span><br/>
+					<input type="text" id="inputDescription">
+				</div>
+			</span>
+
+		</form>	
+
+	</div>
+
+	<div class="span9">
+
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="#map" data-toggle="tab">Map</a></li>
+			<li><a href="#timelines" data-toggle="tab">Timelines</a></li>
+			<li><a href="#chronology" data-toggle="tab">Chronology</a></li>
+			<li><a href="#country-selector" data-toggle="tab">Select Country</a></li>
+		</ul>
+		<div id="dateSelector"></div>
+
+		<div class="tab-content">
+			
+<!-- why do I have the inner divs here??? -->
+
+			<div class="tab-pane" id="timelines">
+		  		<div id="dataTable"></div>
+			</div>
+		  	
+		  	<div class="tab-pane active" id="map">
+		  		<div id="mapTable"></div>
+		  		<br/>
+		  	</div>
+
+		  	<div class="tab-pane" id="chronology">
+		  	</div>
+
+			<div class="tab-pane" id="country-selector">
+		  		<div id="countrySelector">
+		  		</div>
+			</div>
+		
+		</div>
+
+	</div>
+
+</div>
+</div>

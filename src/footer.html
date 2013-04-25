@@ -1,0 +1,14 @@
+<!-- <script src="./bootstrap/js/bootstrap.min.js"></script> -->
+<script src="./twitter-bootstrap-37d0a30/bootstrap.js"></script>
+<script>
+  $(function () {
+    $('#m a[href="#map"]').tab('show');
+  });
+$('a[data-toggle="tab"]').on('shown', function (e) {
+  selectedTab = e.target.attributes.href.value;
+  redrawOnTabSwitch();
+});
+</script>
+
+</body>
+</html>
