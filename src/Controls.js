@@ -63,9 +63,13 @@ function Controls(queryTemplate) {
 		for(var i = 0; i < opts.length; i++) {
 			htmlStr += '<label class="checkbox">'
 						+ '<input type="checkbox" data-value="' + opts[i] + '">'
+						+ '<svg width="10" height="10">'
+						+ '<circle cx="5" cy="5" r="3" fill="' + p.getColor(opts[i]) + '"/>' 
+						+ '</svg> '
 						+ opts[i]
 						+ '</label>';
 		}
+
 		s.innerHTML = htmlStr;
 		//A dangerous little hack; figure out how bootstrap does checkboxes
 		$('input[type="checkbox"]').prop('checked', true);
