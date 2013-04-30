@@ -11,6 +11,7 @@ cat \
 ../src/Timelines.js \
 ../src/Table.js \
 ../src/Controls.js \
+../src/dom-utils.js \
 ../src/closing_script_tag.html \
 ../src/footer.html \
 > ../index.html
