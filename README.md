@@ -1,1 +1,1 @@
-Source for [[http://wija.github.io/follow/]]
+Source for [http://wija.github.io/follow/]
