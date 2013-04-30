@@ -29,8 +29,10 @@
     
     function Palette(palette, colorsTooClosePred, retFn) {
         
-        this.palette = palette || [[141, 211, 199], [255, 255, 179], [190, 186, 218], [251, 128, 114], [128, 177, 211], [253, 180, 98], [179, 222, 105], [252, 205, 229], [217, 217, 217], [188, 128, 189], [204, 235, 197], [255, 237, 111]];
-        
+        //this.palette = palette || [[141, 211, 199], [255, 255, 179], [190, 186, 218], [251, 128, 114], [128, 177, 211], [253, 180, 98], [179, 222, 105], [252, 205, 229], [217, 217, 217], [188, 128, 189], [204, 235, 197], [255, 237, 111]];
+        //from https://github.com/mbostock/d3/wiki/Ordinal-Scales
+        this.palette = palette || [[31,119,180],[255,127,14],[44,160,44],[214,39,40],[148,103,189],[140,86,75],[227,119,194],[127,127,127],[188,189,34],[23,190,207]];
+
         this.colorsTooClosePred = colorsTooClosePred || function(rgb1, rgb2) { return Palette.rgbDistance(rgb1, rgb2) < 20; } 
         
         this.retFn = retFn || Palette.toCSS
