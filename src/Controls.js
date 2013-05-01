@@ -79,7 +79,7 @@ function Controls(queryTemplate) {
 Controls.prototype.destruct = function() {
 	//is this necessary? and what about the d3 brush listener?
 	document.getElementById("selectIncidentType").removeEventListener("change", this.selectIncidentTypeListener);
-	document.getElementById("fatalitySizing").removeEventListener("change", this.selectIncidentTypeListener);
+	//document.getElementById("fatalitySizing").removeEventListener("change", this.selectIncidentTypeListener);
 	document.getElementById("inputDescription").removeEventListener("keyup", this.inputDescriptionListener);
 	this.context.remove();
 }
@@ -89,6 +89,7 @@ Controls.prototype.attachEventHandlers = function() {
 	var self = this;
 	this.selectIncidentTypeListener = function() { newMultiSelect(this,self.queryTemplate,"EVENT_TYPE"); };
 	this.inputDescriptionListener = function() { newTextInput(this,self.queryTemplate,"CONSOLIDATED_NOTES"); };
+/*
 	this.fatalitySizingListener = function() {
 		if(document.getElementById("fatalitySizing").children[0].children[0].checked) {
 			fatalitySizing = true; 
@@ -100,12 +101,12 @@ Controls.prototype.attachEventHandlers = function() {
 		map.redrawCompletely();
 		timelines.redrawCompletely();
 	}
-
+*/
 	document.getElementById("selectIncidentType")
 		.addEventListener("change", this.selectIncidentTypeListener);
 
-	document.getElementById("fatalitySizing")
-		.addEventListener("change", this.fatalitySizingListener);
+//	document.getElementById("fatalitySizing")
+//		.addEventListener("change", this.fatalitySizingListener);
 
 	document.getElementById("inputDescription")
 		.addEventListener("keyup", this.inputDescriptionListener);

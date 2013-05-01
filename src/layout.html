@@ -1,22 +1,68 @@
 <div class="container">
+
+<!--
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="#map" data-toggle="tab">Map</a></li>
+			<li><a href="#timelines" data-toggle="tab">Timelines</a></li>
+			<li><a href="#chronology" data-toggle="tab">Chronology</a></li>
+		</ul>
+
+
+		<br/>
+		<div class="btn-group btn-group-vertical">
+			<a href="#load-data" role="button" class="btn btn-primary" data-toggle="modal">Load Country Data</a>
+			<a href="#about" role="button" class="btn btn-primary" data-toggle="modal">About</a>
+		</div>
+
+-->
+
+<div class="row">
+	<div class="span12">
+		<div class="navbar navbar-fixed-top"> <!--navbar-inverse -->
+  			<div class="navbar-inner">
+    			<span class="brand">FOLLOW: For Event Data</span>
+				<ul class="nav pull-right">
+					<li class="dropdown">
+    					<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+					    	Options
+      						<b class="caret"></b>
+    					</a>
+					    <ul class="dropdown-menu">
+					      <li><a href="javascript:fatalitySizing = !fatalitySizing;map.redrawCompletely();timelines.redrawCompletely();">Toggle size by fatalities</a></li>
+					      <!-- <li><a href="#">Display country names</a></li> -->
+					    </ul>
+  					</li>
+  					<li><a href="#load-data" data-toggle="modal">Load Data</a></li>
+  					<li><a href="#about" data-toggle="modal">About</a></li>
+				</ul>
+		        <form class="navbar-form form-inline">
+		            <div class="btn-group">
+		            	<a href="#map" role="button" class="btn" data-toggle="tab">Map</a>
+		            	<a href="#timelines" role="button" class="btn" data-toggle="tab">Timeline</a>
+		            	<a href="#chronology" role="button" class="btn" data-toggle="tab">Chronology</a>
+		            </div>
+		        </form>
+  			</div>
+		</div>
+	</div>
+</div>
+
 <div class="row">
 
 	<div class="span3">
-
-		<div class="logo-main">FOLLOW</div>
-		<div class="logo-sub">for event data</div>
 
 		<form id="queryForm"> 
 			<span>
 				<div>
 					<div>
-						<br/>
 						<span class="label">Search:</span><br/>
 						<input type="text" id="inputDescription">
 						<br/>
 					</div>
 					<span class="label">Incident Type:</span><br/>
-					<div id="selectIncidentType"></div><br/>
+					<div id="selectIncidentType"></div>
+<!--
+					<br/>
 					<span class="label">Size by Number of Fatalities:</span><br/>
 					<div id="fatalitySizing">
 						<label class="radio">
@@ -26,11 +72,7 @@
 							<input type="radio" name="optionsFS" id="optionsFS2" value="off">Off
 						</label>
 					</div>
-				</div>
-				<br/>
-				<div class="btn-group btn-group-vertical">
-					<a href="#load-data" role="button" class="btn btn-primary" data-toggle="modal">Load Country Data</a>
-					<a href="#about" role="button" class="btn btn-primary" data-toggle="modal">About</a>
+-->
 				</div>
 			</span>
 
@@ -40,11 +82,6 @@
 
 	<div class="span9">
 
-		<ul class="nav nav-tabs">
-			<li class="active"><a href="#map" data-toggle="tab">Map</a></li>
-			<li><a href="#timelines" data-toggle="tab">Timelines</a></li>
-			<li><a href="#chronology" data-toggle="tab">Chronology</a></li>
-		</ul>
 		<div id="dateSelector"></div>
 
 		<div class="tab-content">
