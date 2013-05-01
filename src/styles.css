@@ -111,6 +111,9 @@ circle {
     background-color: #EDEEF5;
 }
 
+.modal, .modal.fade.in {
+    top: 0;
+}
 
 /*remove these?*/
 .background {
