@@ -10,7 +10,7 @@ function Controls(queryTemplate, country) {
 	this.queryTemplate = queryTemplate;
 
 	document.getElementById("countryName").innerHTML = '<b>' + country.replace(/_/g, ' ') + '</b><br/>'
-														+ 'Use "Load Data" on the menu bar '
+														+ 'Use "Select Country" on the menu bar '
 														+ '<br/>to view data for other countries.';
 
 	makeCheckBoxes("selectIncidentType", "EVENT_TYPE");
