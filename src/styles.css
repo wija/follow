@@ -6,6 +6,10 @@ body {
     padding-right: 15px;
 }
 
+.axis {
+    position: fixed;
+}
+
 .axis path,
 .axis line {
     fill: none;
@@ -15,12 +19,36 @@ body {
 
 .brush .extent {
 		stroke: #fff;
-		fill-opacity: .125;
+		fill-opacity: .3;
 		shape-rendering: crispEdges;
 }
 
+#dateSelector {
+    position: fixed;
+    display: inline-block;
+    background-color: #ffffff;
+    opacity: 1;
+    width: 555px;
+    z-index: 1;
+}
+
+
+#timelinesAxis {
+    position: fixed;
+    z-index: -1;
+}
+
+
+#mapTable, #timelinesPanel, #chronologyPanel, #timelinesAxis {
+    padding-top: 40px;
+}
+
+#sidebarControls {
+    position:fixed;
+}
+
 .selectBox {
-	  fill: none;
+	fill: none;
     stroke: black;
     shape-rendering: crispEdges;
 }
@@ -125,7 +153,6 @@ circle {
     top: 0;
 }
 
-/*remove these?*/
 .background {
     fill: none;	
 }

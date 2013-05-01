@@ -5,9 +5,13 @@
 //queryTemplate is actually still global (ps)
 
 
-function Controls(queryTemplate) {
+function Controls(queryTemplate, country) {
 
 	this.queryTemplate = queryTemplate;
+
+	document.getElementById("countryName").innerHTML = '<b>' + country.replace(/_/g, ' ') + '</b><br/>'
+														+ 'Use "Load Data" on the menu bar '
+														+ '<br/>to view data for other countries.';
 
 	makeCheckBoxes("selectIncidentType", "EVENT_TYPE");
 
@@ -28,7 +32,7 @@ function Controls(queryTemplate) {
 
 	this.brush = d3.svg.brush()
 			  		.x(selectorScale)
-			  		.extent([dateFormat.parse("1/1/2004"), dateFormat.parse("1/1/2005")]);
+			  		.extent([dateFormat.parse("1/1/2011"), dateFormat.parse("1/1/2012")]);
 
 	this.context = d3.select("#dateSelector").append("svg")
 		.attr("width", this.dimensions.width)
@@ -82,6 +86,7 @@ Controls.prototype.destruct = function() {
 	//document.getElementById("fatalitySizing").removeEventListener("change", this.selectIncidentTypeListener);
 	document.getElementById("inputDescription").removeEventListener("keyup", this.inputDescriptionListener);
 	this.context.remove();
+	document.getElementById("inputDescription").value= '';
 }
 
 Controls.prototype.attachEventHandlers = function() {

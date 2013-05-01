@@ -19,6 +19,10 @@ body {
     padding-right: 15px;
 }
 
+.axis {
+    position: fixed;
+}
+
 .axis path,
 .axis line {
     fill: none;
@@ -28,12 +32,36 @@ body {
 
 .brush .extent {
 		stroke: #fff;
-		fill-opacity: .125;
+		fill-opacity: .3;
 		shape-rendering: crispEdges;
 }
 
+#dateSelector {
+    position: fixed;
+    display: inline-block;
+    background-color: #ffffff;
+    opacity: 1;
+    width: 555px;
+    z-index: 1;
+}
+
+
+#timelinesAxis {
+    position: fixed;
+    z-index: -1;
+}
+
+
+#mapTable, #timelinesPanel, #chronologyPanel, #timelinesAxis {
+    padding-top: 40px;
+}
+
+#sidebarControls {
+    position:fixed;
+}
+
 .selectBox {
-	  fill: none;
+	fill: none;
     stroke: black;
     shape-rendering: crispEdges;
 }
@@ -138,7 +166,6 @@ circle {
     top: 0;
 }
 
-/*remove these?*/
 .background {
     fill: none;	
 }
@@ -202,6 +229,7 @@ circle {
 
 	<div class="span3">
 
+		<div id="sidebarControls">
 		<form id="queryForm"> 
 			<span>
 				<div>
@@ -212,6 +240,8 @@ circle {
 					</div>
 					<span class="label">Incident Type:</span><br/>
 					<div id="selectIncidentType"></div>
+					<br/>
+					<div id="countryName"></div>
 <!--
 					<br/>
 					<span class="label">Size by Number of Fatalities:</span><br/>
@@ -225,13 +255,14 @@ circle {
 					</div>
 -->
 				</div>
+			</div>
 			</span>
 
 		</form>	
 
 	</div>
 
-	<div class="span9">
+	<div class="span9 offset4">
 
 		<div id="dateSelector"></div>
 
@@ -240,7 +271,10 @@ circle {
 <!-- why do I have the inner divs here??? -->
 
 			<div class="tab-pane" id="timelines">
-		  		<div id="dataTable"></div>
+		  		<div id="dataTable">
+			  		<div id="timelinesAxis"></div>
+			  		<div id="timelinesPanel"></div>
+		  		</div>
 			</div>
 		  	
 		  	<div class="tab-pane active" id="map">
@@ -249,6 +283,7 @@ circle {
 		  	</div>
 
 		  	<div class="tab-pane" id="chronology">
+		  		<div id="chronologyPanel"></div>
 		  	</div>
 		
 		</div>
@@ -355,7 +390,7 @@ function redrawOnTabSwitch() {
 }
 
 firstTime = true;
-loadNewCountry("Uganda");
+loadNewCountry("Libya");
 
 function loadNewCountry(country) {
 	
@@ -378,8 +413,8 @@ function loadNewCountry(country) {
 								  								  new Date("1/1/1997"), 
 								  								  new Date("2/28/2013"),
 								  								  country);
-								  		table = new Table("chronology", country);
-										controls = new Controls(ps);
+								  		table = new Table("chronologyPanel", country);
+										controls = new Controls(ps, country);
 										controls.attachEventHandlers();
 										if(firstTime) {
 											//this is broken for some reason, so inserted directly into
@@ -762,7 +797,7 @@ function Timelines(parentElement, startDate, endDate, country) {
 	            	  .clamp(true);
 	})();
 
-	this.chart = d3.select(parentElement).append("svg")
+	this.chart = d3.select("#timelinesPanel").append("svg")
 					.attr("class", "chart")
 					.attr("width", 555) //this.dimensions.width)
 					.attr("height", totalHeight);
@@ -772,20 +807,25 @@ function Timelines(parentElement, startDate, endDate, country) {
 	for(var i = 0, n = cnames.length; i < n; i++) {
 		this.chart.append("text")
 			.text(splitCnames[i][1])
-			.attr("x", this.padding.outerPaddingWidth)
+			.attr("x", this.padding.outerPaddingWidth + 5)
 			.attr("y", 20 + i * this.dimensions.height + (this.dimensions.height / 3))
 			.attr("font-size", this.dimensions.height / 4)
 			.attr("font-family", "sans-serif")
 			.attr("font-weight", "bold");
 		this.chart.append("text")
 			.text(splitCnames[i][0])
-			.attr("x", this.padding.outerPaddingWidth)
+			.attr("x", this.padding.outerPaddingWidth + 5)
 			.attr("y", 20 + i * this.dimensions.height + 2 * (this.dimensions.height / 3))
 			.attr("font-size", this.dimensions.height / 4)
 			.attr("font-family", "sans-serif");
     }
 
-	this.tl = this.chart.append("g")
+	this.axisBox = d3.select("#timelinesAxis").append("svg")
+					//.attr("class", "chart")
+					.attr("width", 555) //this.dimensions.width)
+					.attr("height", 20);
+
+	this.tl = this.axisBox.append("g")
 		.attr("class", "axis")
 		.attr("transform", "translate(0,15)") //+ (maxOffset + this.corners.yTimelineBottom) + ")")
 		.style("font-size", this.padding.labelHeight)
@@ -860,21 +900,11 @@ Timelines.prototype.redrawCompletely = function() {
 
 Timelines.prototype.destruct = function() {
 	this.chart.remove();
+	this.axisBox.remove();
 }
 
 
 //Table.js
-
-/*
-			  { FATALITIES:  		{ index: db.NumberIndex },
-			    COUNTRY:     		{ index: db.CategoryIndex },
-			    ADM_LEVEL_1_BY_COUNTRY: { index: db.CategoryIndex,
-			    					  	  opts: { keyExtractor: function(o) { return o.COUNTRY + '|' + o.ADM_LEVEL_1; }}}, 
-			    EVENT_DATE:  		{ index: db.DateIndex }, 
-			    EVENT_TYPE:  		{ index: db.CategoryIndex },
-			    CONSOLIDATED_NOTES: { index: db.TextIndex }});
-
-*/
 
 function Table(parentElement, country) {
 
@@ -953,9 +983,13 @@ function makeNewDiv(o) {
 //queryTemplate is actually still global (ps)
 
 
-function Controls(queryTemplate) {
+function Controls(queryTemplate, country) {
 
 	this.queryTemplate = queryTemplate;
+
+	document.getElementById("countryName").innerHTML = '<b>' + country.replace(/_/g, ' ') + '</b><br/>'
+														+ 'Use "Load Data" on the menu bar '
+														+ '<br/>to view data for other countries.';
 
 	makeCheckBoxes("selectIncidentType", "EVENT_TYPE");
 
@@ -976,7 +1010,7 @@ function Controls(queryTemplate) {
 
 	this.brush = d3.svg.brush()
 			  		.x(selectorScale)
-			  		.extent([dateFormat.parse("1/1/2004"), dateFormat.parse("1/1/2005")]);
+			  		.extent([dateFormat.parse("1/1/2011"), dateFormat.parse("1/1/2012")]);
 
 	this.context = d3.select("#dateSelector").append("svg")
 		.attr("width", this.dimensions.width)
@@ -1030,6 +1064,7 @@ Controls.prototype.destruct = function() {
 	//document.getElementById("fatalitySizing").removeEventListener("change", this.selectIncidentTypeListener);
 	document.getElementById("inputDescription").removeEventListener("keyup", this.inputDescriptionListener);
 	this.context.remove();
+	document.getElementById("inputDescription").value= '';
 }
 
 Controls.prototype.attachEventHandlers = function() {
