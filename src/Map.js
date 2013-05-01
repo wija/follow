@@ -177,6 +177,12 @@ Map.prototype.redraw = function(resultArr) {
 			circle.setAttributeNS(null, "r", 3);
 		}
 		circle.setAttributeNS(null, "fill", p.getColor(d.EVENT_TYPE));
+
+		//this doesn't result in tooltips actually displaying; why not?
+		var titleTextElement = document.createElementNS(svgMapNode.namespaceURI, "text");
+		titleTextElement.textContent = d.CONSOLIDATED_NOTES;
+		circle.appendChild(titleTextElement);
+		
 		enterFragment.appendChild(circle);
 	}
 

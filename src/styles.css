@@ -117,12 +117,10 @@ circle {
 
 /*remove these?*/
 .background {
-    pointer-events: all;
     fill: none;	
 }
 
 #circleGroup {
-    pointer-events: all;
     fill: none;
 }
 

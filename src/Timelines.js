@@ -118,7 +118,8 @@ Timelines.prototype.redraw = function(resultArr) {
 		.attr("cx", function(d, i) { return xScale(dateFormat.parse(d.EVENT_DATE).getTime()); })
 		.attr("cy", function(d) { return self.countryOffsets[d.COUNTRY+'|'+d.ADM_LEVEL_1] + self.corners.yTimelineBottom - self.padding.axisToIncidentsHeight; })
 		.attr("r", function(d) { return fatalitySizing ? Math.log(d.FATALITIES + 2) + 2 : 3; })
-		.attr("fill", function(d) { return p.getColor(d.EVENT_TYPE); });
+		.attr("fill", function(d) { return p.getColor(d.EVENT_TYPE); })
+		.append("title").text(function(d) { return d.CONSOLIDATED_NOTES; });
 
     cs.attr("cx", function(d, i) { 
     	return xScale(dateFormat.parse(d.EVENT_DATE).getTime()); 

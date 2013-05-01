@@ -130,12 +130,10 @@ circle {
 
 /*remove these?*/
 .background {
-    pointer-events: all;
     fill: none;	
 }
 
 #circleGroup {
-    pointer-events: all;
     fill: none;
 }
 
@@ -630,6 +628,12 @@ Map.prototype.redraw = function(resultArr) {
 			circle.setAttributeNS(null, "r", 3);
 		}
 		circle.setAttributeNS(null, "fill", p.getColor(d.EVENT_TYPE));
+
+		//this doesn't result in tooltips actually displaying; why not?
+		var titleTextElement = document.createElementNS(svgMapNode.namespaceURI, "text");
+		titleTextElement.textContent = d.CONSOLIDATED_NOTES;
+		circle.appendChild(titleTextElement);
+		
 		enterFragment.appendChild(circle);
 	}
 
@@ -782,7 +786,8 @@ Timelines.prototype.redraw = function(resultArr) {
 		.attr("cx", function(d, i) { return xScale(dateFormat.parse(d.EVENT_DATE).getTime()); })
 		.attr("cy", function(d) { return self.countryOffsets[d.COUNTRY+'|'+d.ADM_LEVEL_1] + self.corners.yTimelineBottom - self.padding.axisToIncidentsHeight; })
 		.attr("r", function(d) { return fatalitySizing ? Math.log(d.FATALITIES + 2) + 2 : 3; })
-		.attr("fill", function(d) { return p.getColor(d.EVENT_TYPE); });
+		.attr("fill", function(d) { return p.getColor(d.EVENT_TYPE); })
+		.append("title").text(function(d) { return d.CONSOLIDATED_NOTES; });
 
     cs.attr("cx", function(d, i) { 
     	return xScale(dateFormat.parse(d.EVENT_DATE).getTime()); 
