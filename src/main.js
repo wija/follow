@@ -46,7 +46,7 @@ function redrawOnTabSwitch() {
 }
 
 firstTime = true;
-loadNewCountry("Uganda");
+loadNewCountry("Libya");
 
 function loadNewCountry(country) {
 	
@@ -69,8 +69,8 @@ function loadNewCountry(country) {
 								  								  new Date("1/1/1997"), 
 								  								  new Date("2/28/2013"),
 								  								  country);
-								  		table = new Table("chronology", country);
-										controls = new Controls(ps);
+								  		table = new Table("chronologyPanel", country);
+										controls = new Controls(ps, country);
 										controls.attachEventHandlers();
 										if(firstTime) {
 											//this is broken for some reason, so inserted directly into

@@ -51,6 +51,7 @@
 
 	<div class="span3">
 
+		<div id="sidebarControls">
 		<form id="queryForm"> 
 			<span>
 				<div>
@@ -61,6 +62,8 @@
 					</div>
 					<span class="label">Incident Type:</span><br/>
 					<div id="selectIncidentType"></div>
+					<br/>
+					<div id="countryName"></div>
 <!--
 					<br/>
 					<span class="label">Size by Number of Fatalities:</span><br/>
@@ -74,13 +77,14 @@
 					</div>
 -->
 				</div>
+			</div>
 			</span>
 
 		</form>	
 
 	</div>
 
-	<div class="span9">
+	<div class="span9 offset4">
 
 		<div id="dateSelector"></div>
 
@@ -89,7 +93,10 @@
 <!-- why do I have the inner divs here??? -->
 
 			<div class="tab-pane" id="timelines">
-		  		<div id="dataTable"></div>
+		  		<div id="dataTable">
+			  		<div id="timelinesAxis"></div>
+			  		<div id="timelinesPanel"></div>
+		  		</div>
 			</div>
 		  	
 		  	<div class="tab-pane active" id="map">
@@ -98,6 +105,7 @@
 		  	</div>
 
 		  	<div class="tab-pane" id="chronology">
+		  		<div id="chronologyPanel"></div>
 		  	</div>
 		
 		</div>

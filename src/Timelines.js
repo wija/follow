@@ -47,7 +47,7 @@ function Timelines(parentElement, startDate, endDate, country) {
 	            	  .clamp(true);
 	})();
 
-	this.chart = d3.select(parentElement).append("svg")
+	this.chart = d3.select("#timelinesPanel").append("svg")
 					.attr("class", "chart")
 					.attr("width", 555) //this.dimensions.width)
 					.attr("height", totalHeight);
@@ -57,20 +57,25 @@ function Timelines(parentElement, startDate, endDate, country) {
 	for(var i = 0, n = cnames.length; i < n; i++) {
 		this.chart.append("text")
 			.text(splitCnames[i][1])
-			.attr("x", this.padding.outerPaddingWidth)
+			.attr("x", this.padding.outerPaddingWidth + 5)
 			.attr("y", 20 + i * this.dimensions.height + (this.dimensions.height / 3))
 			.attr("font-size", this.dimensions.height / 4)
 			.attr("font-family", "sans-serif")
 			.attr("font-weight", "bold");
 		this.chart.append("text")
 			.text(splitCnames[i][0])
-			.attr("x", this.padding.outerPaddingWidth)
+			.attr("x", this.padding.outerPaddingWidth + 5)
 			.attr("y", 20 + i * this.dimensions.height + 2 * (this.dimensions.height / 3))
 			.attr("font-size", this.dimensions.height / 4)
 			.attr("font-family", "sans-serif");
     }
 
-	this.tl = this.chart.append("g")
+	this.axisBox = d3.select("#timelinesAxis").append("svg")
+					//.attr("class", "chart")
+					.attr("width", 555) //this.dimensions.width)
+					.attr("height", 20);
+
+	this.tl = this.axisBox.append("g")
 		.attr("class", "axis")
 		.attr("transform", "translate(0,15)") //+ (maxOffset + this.corners.yTimelineBottom) + ")")
 		.style("font-size", this.padding.labelHeight)
@@ -145,6 +150,7 @@ Timelines.prototype.redrawCompletely = function() {
 
 Timelines.prototype.destruct = function() {
 	this.chart.remove();
+	this.axisBox.remove();
 }
 
 

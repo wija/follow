@@ -1,16 +1,5 @@
 //Table.js
 
-/*
-			  { FATALITIES:  		{ index: db.NumberIndex },
-			    COUNTRY:     		{ index: db.CategoryIndex },
-			    ADM_LEVEL_1_BY_COUNTRY: { index: db.CategoryIndex,
-			    					  	  opts: { keyExtractor: function(o) { return o.COUNTRY + '|' + o.ADM_LEVEL_1; }}}, 
-			    EVENT_DATE:  		{ index: db.DateIndex }, 
-			    EVENT_TYPE:  		{ index: db.CategoryIndex },
-			    CONSOLIDATED_NOTES: { index: db.TextIndex }});
-
-*/
-
 function Table(parentElement, country) {
 
 	this.parentElement = parentElement;
