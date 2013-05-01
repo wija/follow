@@ -168,9 +168,14 @@ Map.prototype.redraw = function(resultArr) {
 
 		var circle = document.createElementNS(svgMapNode.namespaceURI, "circle");
 		circle.setAttributeNS(null, "id", d.MY_EVENT_ID);
+		circle.setAttributeNS(null, "data-fatalities", d.FATALITIES);
 		circle.setAttributeNS(null, "cy", proj[1] + d.LATITUDE_JITTER);
 		circle.setAttributeNS(null, "cx", proj[0] + d.LONGITUDE_JITTER);
-		circle.setAttributeNS(null, "r", 3);
+		if(fatalitySizing) {
+			circle.setAttributeNS(null, "r", Math.log(d.FATALITIES+2)+2);
+		} else {
+			circle.setAttributeNS(null, "r", 3);
+		}
 		circle.setAttributeNS(null, "fill", p.getColor(d.EVENT_TYPE));
 		enterFragment.appendChild(circle);
 	}
@@ -180,32 +185,20 @@ Map.prototype.redraw = function(resultArr) {
 	//**CAN REINTRODUCE THIS: JUST REMOVE AND REINSERT THE PARENT
 	//**WILL DOCUMENT.GETELEMENTID WORK WHEN ITS REMOVED?
 	//var insertFunction = removeToInsertLater(svgMapNode);
-	for(var i =0, n = exit.length; i < n; i++) {
+	for(var i = 0, n = exit.length; i < n; i++) {
 		var d = exit[i];
 		svgMapNode.removeChild(document.getElementById(d.MY_EVENT_ID));
 	}
 	//insertFunction();
 
-	//from https://developers.google.com/speed/articles/javascript-dom
-	/**
-	 * Remove an element and provide a function that inserts it into its original position
-	 * @param element {Element} The element to be temporarily removed
-	 * @return {Function} A function that inserts the element into its original position
-	 **/
-	function removeToInsertLater(element) {
-		var parentNode = element.parentNode;
-		var nextSibling = element.nextSibling;
-		parentNode.removeChild(element);
-		return function() {
-			if (nextSibling) {
-				parentNode.insertBefore(element, nextSibling);
-	    	} else {
-	      		parentNode.appendChild(element);
-	    	}
-	  	};
-	}
-
 	this.cachedResultArr = resultArr;
+}
+
+Map.prototype.redrawCompletely = function() {
+	var cs = document.getElementById("circleGroup").childNodes;
+	for(var i = 0, n = cs.length; i < n; i++) {
+		cs[i].setAttribute("r", fatalitySizing ? Math.log(+cs[i].getAttribute("data-fatalities") + 2) + 2 : 3);
+	}
 }
 
 Map.prototype.destruct = function() {

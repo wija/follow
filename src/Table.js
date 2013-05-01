@@ -29,18 +29,18 @@ Table.prototype.redraw = function(resultArr) {
 		enter = diffs[0],
 		exit = diffs[1];
 
-	function keyExtractor(o) { return new Date(o.EVENT_DATE).getTime(); }
-	var insertFunction = removeToInsertLater(this.tableContainer);
-	var htmlCollect = this.tableContainer.children; 
+	var insertFunction = removeToInsertLater(this.tableContainer),
+		htmlCollect = this.tableContainer.children;
 	for(var i = 0, n = enter.length; i < n; i++) {
+		var newDiv = makeNewDiv.call(this, enter[i]);
 		for(var j = 0, m = htmlCollect.length; j < m; j++) {
-			if(keyExtractor(enter[i]) < htmlCollect[j].getAttribute("data-milliseconds")) {
-				this.tableContainer.insertBefore(makeNewDiv(enter[i]), htmlCollect[j]);
+			if(new Date(enter[i].EVENT_DATE).getTime() < htmlCollect[j].getAttribute("data-milliseconds")) {
+				this.tableContainer.insertBefore(newDiv, htmlCollect[j]);
 				break;
 			}
 		}
 		if(j === m) {
-			this.tableContainer.appendChild(makeNewDiv(enter[i]));
+			this.tableContainer.appendChild(newDiv);
 		}
 	}
 	insertFunction();

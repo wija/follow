@@ -9,18 +9,25 @@
 		<form id="queryForm"> 
 			<span>
 				<div>
+					<div>
+						<span class="label">Search:</span><br/>
+						<input type="text" id="inputDescription">
+						<br/>
+					</div>
 					<br/>
 					<span class="label">Incident Type:</span><br/>
-					<div id="selectIncidentType">
+					<div id="selectIncidentType"></div><br/>
+					<span class="label">Size by Number of Fatalities:</span><br/>
+					<div id="fatalitySizing">
+						<label class="radio">
+							<input type="radio" name="optionsFS" id="optionsFS1" value="on" checked>On
+						</label>
+						<label class="radio">
+							<input type="radio" name="optionsFS" id="optionsFS2" value="off">Off
+						</label>
 					</div>
-					<!-- <select id="selectIncidentType" multiple="yes"></select> -->
 				</div>
 				<br/>
-				<div>
-					<span class="label">Search:</span><br/>
-					<input type="text" id="inputDescription">
-					<br/>
-				</div>
 				<div class="btn-group btn-group-vertical">
 					<a href="#load-data" role="button" class="btn btn-primary" data-toggle="modal">Load Country Data</a>
 					<a href="#about" role="button" class="btn btn-primary" data-toggle="modal">About</a>
