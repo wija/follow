@@ -58,7 +58,7 @@
 }
 
 circle {
-    opacity: 0.8;
+    opacity: 0.5;
 }
 
 .subunit-boundary {
@@ -149,18 +149,25 @@ circle {
 		<form id="queryForm"> 
 			<span>
 				<div>
+					<div>
+						<span class="label">Search:</span><br/>
+						<input type="text" id="inputDescription">
+						<br/>
+					</div>
 					<br/>
 					<span class="label">Incident Type:</span><br/>
-					<div id="selectIncidentType">
+					<div id="selectIncidentType"></div><br/>
+					<span class="label">Size by Number of Fatalities:</span><br/>
+					<div id="fatalitySizing">
+						<label class="radio">
+							<input type="radio" name="optionsFS" id="optionsFS1" value="on" checked>On
+						</label>
+						<label class="radio">
+							<input type="radio" name="optionsFS" id="optionsFS2" value="off">Off
+						</label>
 					</div>
-					<!-- <select id="selectIncidentType" multiple="yes"></select> -->
 				</div>
 				<br/>
-				<div>
-					<span class="label">Search:</span><br/>
-					<input type="text" id="inputDescription">
-					<br/>
-				</div>
 				<div class="btn-group btn-group-vertical">
 					<a href="#load-data" role="button" class="btn btn-primary" data-toggle="modal">Load Country Data</a>
 					<a href="#about" role="button" class="btn btn-primary" data-toggle="modal">About</a>
@@ -262,6 +269,8 @@ mapHeight = 420;
 
 startDate = null;
 endDate = null;
+
+fatalitySizing = true;
 
 selectedTab = "#map";
 
@@ -609,9 +618,14 @@ Map.prototype.redraw = function(resultArr) {
 
 		var circle = document.createElementNS(svgMapNode.namespaceURI, "circle");
 		circle.setAttributeNS(null, "id", d.MY_EVENT_ID);
+		circle.setAttributeNS(null, "data-fatalities", d.FATALITIES);
 		circle.setAttributeNS(null, "cy", proj[1] + d.LATITUDE_JITTER);
 		circle.setAttributeNS(null, "cx", proj[0] + d.LONGITUDE_JITTER);
-		circle.setAttributeNS(null, "r", 3);
+		if(fatalitySizing) {
+			circle.setAttributeNS(null, "r", Math.log(d.FATALITIES+2)+2);
+		} else {
+			circle.setAttributeNS(null, "r", 3);
+		}
 		circle.setAttributeNS(null, "fill", p.getColor(d.EVENT_TYPE));
 		enterFragment.appendChild(circle);
 	}
@@ -621,13 +635,20 @@ Map.prototype.redraw = function(resultArr) {
 	//**CAN REINTRODUCE THIS: JUST REMOVE AND REINSERT THE PARENT
 	//**WILL DOCUMENT.GETELEMENTID WORK WHEN ITS REMOVED?
 	//var insertFunction = removeToInsertLater(svgMapNode);
-	for(var i =0, n = exit.length; i < n; i++) {
+	for(var i = 0, n = exit.length; i < n; i++) {
 		var d = exit[i];
 		svgMapNode.removeChild(document.getElementById(d.MY_EVENT_ID));
 	}
 	//insertFunction();
 
 	this.cachedResultArr = resultArr;
+}
+
+Map.prototype.redrawCompletely = function() {
+	var cs = document.getElementById("circleGroup").childNodes;
+	for(var i = 0, n = cs.length; i < n; i++) {
+		cs[i].setAttribute("r", fatalitySizing ? Math.log(+cs[i].getAttribute("data-fatalities") + 2) + 2 : 3);
+	}
 }
 
 Map.prototype.destruct = function() {
@@ -757,7 +778,7 @@ Timelines.prototype.redraw = function(resultArr) {
 	cs.enter().insert("circle")
 		.attr("cx", function(d, i) { return xScale(dateFormat.parse(d.EVENT_DATE).getTime()); })
 		.attr("cy", function(d) { return self.countryOffsets[d.COUNTRY+'|'+d.ADM_LEVEL_1] + self.corners.yTimelineBottom - self.padding.axisToIncidentsHeight; })
-		.attr("r", 3)
+		.attr("r", function(d) { return fatalitySizing ? Math.log(d.FATALITIES + 2) + 2 : 3; })
 		.attr("fill", function(d) { return p.getColor(d.EVENT_TYPE); });
 
     cs.attr("cx", function(d, i) { 
@@ -768,6 +789,18 @@ Timelines.prototype.redraw = function(resultArr) {
 
 	this.cachedResultArr = resultArr;
 
+}
+
+Timelines.prototype.redrawCompletely = function() {
+
+	this.chart.selectAll("circle")
+		.attr("r", function(o) { return fatalitySizing ? Math.log(+o.FATALITIES + 2) + 2 : 3; });
+/*
+	var cs = document.getElementById("circleGroup").childNodes;
+	for(var i = 0, n = cs.length; i < n; i++) {
+		cs[i].setAttribute("r", fatalitySizing ? Math.log(+cs[i].attr("data-fatalities") + 2) + 2 : 3);
+	}
+*/
 }
 
 Timelines.prototype.destruct = function() {
@@ -939,6 +972,7 @@ function Controls(queryTemplate) {
 Controls.prototype.destruct = function() {
 	//is this necessary? and what about the d3 brush listener?
 	document.getElementById("selectIncidentType").removeEventListener("change", this.selectIncidentTypeListener);
+	document.getElementById("fatalitySizing").removeEventListener("change", this.selectIncidentTypeListener);
 	document.getElementById("inputDescription").removeEventListener("keyup", this.inputDescriptionListener);
 	this.context.remove();
 }
@@ -948,9 +982,23 @@ Controls.prototype.attachEventHandlers = function() {
 	var self = this;
 	this.selectIncidentTypeListener = function() { newMultiSelect(this,self.queryTemplate,"EVENT_TYPE"); };
 	this.inputDescriptionListener = function() { newTextInput(this,self.queryTemplate,"CONSOLIDATED_NOTES"); };
+	this.fatalitySizingListener = function() {
+		if(document.getElementById("fatalitySizing").children[0].children[0].checked) {
+			fatalitySizing = true; 
+		} else {
+			fatalitySizing = false;
+		}
+		//Note that this happens on all tabs simultaneously
+		//May need to queue up changes for unviewed tabs
+		map.redrawCompletely();
+		timelines.redrawCompletely();
+	}
 
 	document.getElementById("selectIncidentType")
 		.addEventListener("change", this.selectIncidentTypeListener);
+
+	document.getElementById("fatalitySizing")
+		.addEventListener("change", this.fatalitySizingListener);
 
 	document.getElementById("inputDescription")
 		.addEventListener("keyup", this.inputDescriptionListener);

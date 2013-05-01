@@ -117,7 +117,7 @@ Timelines.prototype.redraw = function(resultArr) {
 	cs.enter().insert("circle")
 		.attr("cx", function(d, i) { return xScale(dateFormat.parse(d.EVENT_DATE).getTime()); })
 		.attr("cy", function(d) { return self.countryOffsets[d.COUNTRY+'|'+d.ADM_LEVEL_1] + self.corners.yTimelineBottom - self.padding.axisToIncidentsHeight; })
-		.attr("r", 3)
+		.attr("r", function(d) { return fatalitySizing ? Math.log(d.FATALITIES + 2) + 2 : 3; })
 		.attr("fill", function(d) { return p.getColor(d.EVENT_TYPE); });
 
     cs.attr("cx", function(d, i) { 
@@ -128,6 +128,18 @@ Timelines.prototype.redraw = function(resultArr) {
 
 	this.cachedResultArr = resultArr;
 
+}
+
+Timelines.prototype.redrawCompletely = function() {
+
+	this.chart.selectAll("circle")
+		.attr("r", function(o) { return fatalitySizing ? Math.log(+o.FATALITIES + 2) + 2 : 3; });
+/*
+	var cs = document.getElementById("circleGroup").childNodes;
+	for(var i = 0, n = cs.length; i < n; i++) {
+		cs[i].setAttribute("r", fatalitySizing ? Math.log(+cs[i].attr("data-fatalities") + 2) + 2 : 3);
+	}
+*/
 }
 
 Timelines.prototype.destruct = function() {

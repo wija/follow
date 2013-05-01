@@ -9,6 +9,8 @@ mapHeight = 420;
 startDate = null;
 endDate = null;
 
+fatalitySizing = true;
+
 selectedTab = "#map";
 
 masterCachedResultArr = [];
