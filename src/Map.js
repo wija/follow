@@ -23,15 +23,7 @@ function Map(country, mapWidth, mapHeight, parentElement, callback) {
 	      .attr("height", this.mapHeight)
 	      .attr("id", "mapTableSvg");
 
-	//fix this
-	this.mapContainer.append("defs").append("clipPath")
-		.attr("id", "mapClip")
-	    .append("rect")
-	    	.attr("width", this.mapWidth)
-	    	.attr("height", this.mapHeight);
-
-	this.svgMap = this.mapContainer.append("g")
-	    .attr("clip-path", "url(#mapClip)");
+	this.svgMap = this.mapContainer;
 
 	var filename;
 	if(country === "Democratic_Republic_of_the_Congo") {
@@ -62,20 +54,58 @@ function Map(country, mapWidth, mapHeight, parentElement, callback) {
 		 		admin1 = topojson.object(jsonMap, jsonMap.objects.admin1),
 		    	places = topojson.object(jsonMap, jsonMap.objects.places),
 		   		rivers = topojson.object(jsonMap, jsonMap.objects.rivers),
+		   		//oceans = topojson.object(jsonMap, jsonMap.objects.oceans),
 		   		urbanAreas = topojson.object(jsonMap, jsonMap.objects.urban);
 
-		      //see http://stackoverflow.com/questions/14492284/center-a-map-in-d3-given-a-geojson-object
 
-		    	var scale  = 45 * this.mapWidth / (boundingBox.east - boundingBox.west);
-		    	var offset  = [this.mapWidth / 2 - 65, this.mapHeight / 2];
+/*
+if(['Benin','Egypt','Gambia','Libya','Madagascar','Malawi','Nigeria','Togo','Tunisia','Uganda'].indexOf(country) !== -1) {
+	var scaleFactor = 67;
+	var widthOffset = 145;
+	var heightOffset = 40;
+} else if(['Ghana','Kenya','Swaziland'].indexOf(country) !== -1) {
+	var scaleFactor = 55;
+} else {
+	var scaleFactor = 55;
+	var widthOffset = 175;
+	var heightOffset = 100;
+}
+*/
+
+/*
+	see http://stackoverflow.com/questions/14492284/center-a-map-in-d3-given-a-geojson-object
+	and https://groups.google.com/forum/#!msg/d3-js/pvovPbU5tmo/NNVOC8cIPjUJ
+*/
+
+self.projection = d3.geo.mercator()
+    .scale(1)
+    .translate([0, 0]);
+
+var path = d3.geo.path()
+    .projection(self.projection);
+
+var b = path.bounds(subunits),
+    s = 1 / Math.max((b[1][0] - b[0][0]) / this.mapWidth, (b[1][1] - b[0][0]) / this.mapHeight),
+    //s = 1 / ((b[1][0] - b[0][0]) / this.mapWidth),
+    t = [(this.mapWidth - s * (b[1][0] + b[0][0])) / 2, (this.mapHeight - s * (b[1][1] + b[0][1])) / 2];
+
+self.projection
+    .scale(s)
+    .translate(t);
+/*
+		    	//var scale  = scaleFactor * (this.mapWidth) / (boundingBox.east - boundingBox.west);
+		    	//var s  = Math.max((this.mapWidth) / (boundingBox.east - boundingBox.west), (this.mapHeight) / (boundingBox.north - boundingBox.south));
+		    	var s  = (this.mapWidth) / (boundingBox.east - boundingBox.west);
+				//var offset  = [this.mapWidth/2 + widthOffset, this.mapHeight/2 + heightOffset];
+		    	var offset  = [this.mapWidth - s * (boundingBox.east - boundingBox.west) / 2, this.mapHeight - s * (boundingBox.north - boundingBox.south) / 2];
 		    	var center = [ boundingBox.west + (boundingBox.east - boundingBox.west)/2, 
 		    				   boundingBox.south + (boundingBox.north - boundingBox.south)/2];
 
 		    self.projection = d3.geo.mercator()
-		        				.scale(scale)
+		        				.scale(this.mapWidth*s/20)
 		        				.center(center)
 		        				.translate(offset);
-
+*/
 			var path = d3.geo.path()
 			    .projection(self.projection)
 			    .pointRadius(2);
@@ -97,7 +127,13 @@ function Map(country, mapWidth, mapHeight, parentElement, callback) {
 				.attr("class", "river")
 				.attr("style", function(d) { return "stroke-width:" + (d.properties.strokeweig * 2.5);})
 				.attr("d", path);
-
+/*
+			self.svgMap.selectAll(".ocean")
+				.data(oceans.geometries)
+			.enter().append("path")
+				.attr("class", "ocean")
+				.attr("d", path);
+*/
 			self.svgMap.selectAll(".urbanArea")
 				.data(urbanAreas.geometries)
 			.enter().append("path")
@@ -172,9 +208,9 @@ Map.prototype.redraw = function(resultArr) {
 		circle.setAttributeNS(null, "cy", proj[1] + d.LATITUDE_JITTER);
 		circle.setAttributeNS(null, "cx", proj[0] + d.LONGITUDE_JITTER);
 		if(fatalitySizing) {
-			circle.setAttributeNS(null, "r", Math.log(d.FATALITIES+2)+2);
+			circle.setAttributeNS(null, "r", Math.log(d.FATALITIES+3)+2);
 		} else {
-			circle.setAttributeNS(null, "r", 3);
+			circle.setAttributeNS(null, "r", 4);
 		}
 		circle.setAttributeNS(null, "fill", p.getColor(d.EVENT_TYPE));
 

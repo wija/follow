@@ -3,8 +3,9 @@
 p = new Palette();
 dateFormat = d3.time.format("%x");
 
-mapWidth = 700;
-mapHeight = 420;
+//was 700x420
+mapWidth = window.innerWidth + 150;
+mapHeight = mapWidth * 0.6;
 
 startDate = null;
 endDate = null;
@@ -46,7 +47,7 @@ function redrawOnTabSwitch() {
 }
 
 firstTime = true;
-loadNewCountry("Libya");
+loadNewCountry("Cameroon");
 
 function loadNewCountry(country) {
 	
@@ -63,7 +64,7 @@ function loadNewCountry(country) {
 				function() {
 					map = new Map(country, 
 								  mapWidth, mapHeight, 
-								  "#mapTable", 
+								  "#forTheMap", 
 								  function() {
 								  		timelines = new Timelines("#dataTable", 
 								  								  new Date("1/1/1997"), 

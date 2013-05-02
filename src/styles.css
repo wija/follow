@@ -1,6 +1,13 @@
 <style type="text/css">
 
-body {
+#forTheMap {
+    z-index: -10;
+    left: 0px;
+    top: 0px;
+    position:absolute;
+}
+
+.container {
     padding-top: 55px;
     padding-left: 15px;
     padding-right: 15px;
@@ -45,6 +52,13 @@ body {
 
 #sidebarControls {
     position:fixed;
+    z-index: -5;
+    background-color: rgb(242, 242, 242);
+    opacity:0.9;
+    padding: 5px;
+    border-color: rgb(212, 212, 212);
+    box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0.9090908765792847px 10px 0px;
+    color: rgb(51, 51, 51);
 }
 
 .selectBox {
@@ -60,7 +74,7 @@ body {
 }
 
 .subunit {
-  	fill: none;
+  	fill: #FCFAF5;
     stroke: #777;
     stroke-linejoin: round;
 }
@@ -109,6 +123,10 @@ circle {
 .river {
     fill: none;
     stroke: #6978D1;
+}
+
+.ocean {
+    fill: #6978D1;
 }
 
 .place, .place-label {
