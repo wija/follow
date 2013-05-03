@@ -58,14 +58,14 @@ function Timelines(parentElement, startDate, endDate, country) {
 		this.chart.append("text")
 			.text(splitCnames[i][1])
 			.attr("x", this.padding.outerPaddingWidth + 5)
-			.attr("y", 20 + i * this.dimensions.height + (this.dimensions.height / 3))
+			.attr("y", 30 + i * this.dimensions.height + (this.dimensions.height / 3))
 			.attr("font-size", this.dimensions.height / 4)
 			.attr("font-family", "sans-serif")
 			.attr("font-weight", "bold");
 		this.chart.append("text")
 			.text(splitCnames[i][0])
 			.attr("x", this.padding.outerPaddingWidth + 5)
-			.attr("y", 20 + i * this.dimensions.height + 2 * (this.dimensions.height / 3))
+			.attr("y", 30 + i * this.dimensions.height + 2 * (this.dimensions.height / 3))
 			.attr("font-size", this.dimensions.height / 4)
 			.attr("font-family", "sans-serif");
     }
@@ -73,11 +73,11 @@ function Timelines(parentElement, startDate, endDate, country) {
 	this.axisBox = d3.select("#timelinesAxis").append("svg")
 					//.attr("class", "chart")
 					.attr("width", 555) //this.dimensions.width)
-					.attr("height", 20);
+					.attr("height", 30);
 
 	this.tl = this.axisBox.append("g")
 		.attr("class", "axis")
-		.attr("transform", "translate(0,15)") //+ (maxOffset + this.corners.yTimelineBottom) + ")")
+		.attr("transform", "translate(0,25)") //+ (maxOffset + this.corners.yTimelineBottom) + ")")
 		.style("font-size", this.padding.labelHeight)
 		.style("font-family", "sans-serif");
 
@@ -122,7 +122,7 @@ Timelines.prototype.redraw = function(resultArr) {
 	cs.enter().insert("circle")
 		.attr("cx", function(d, i) { return xScale(dateFormat.parse(d.EVENT_DATE).getTime()); })
 		.attr("cy", function(d) { return self.countryOffsets[d.COUNTRY+'|'+d.ADM_LEVEL_1] + self.corners.yTimelineBottom - self.padding.axisToIncidentsHeight; })
-		.attr("r", function(d) { return fatalitySizing ? Math.log(d.FATALITIES + 2) + 2 : 3; })
+		.attr("r", function(d) { return fatalitySizing ? Math.log(d.FATALITIES)*2 + 2 : 3; })
 		.attr("fill", function(d) { return p.getColor(d.EVENT_TYPE); })
 		.append("title").text(function(d) { return d.CONSOLIDATED_NOTES; });
 

@@ -54,28 +54,27 @@ function Map(country, mapWidth, mapHeight, parentElement, callback) {
 		 		admin1 = topojson.object(jsonMap, jsonMap.objects.admin1),
 		    	places = topojson.object(jsonMap, jsonMap.objects.places),
 		   		rivers = topojson.object(jsonMap, jsonMap.objects.rivers),
-		   		//oceans = topojson.object(jsonMap, jsonMap.objects.oceans),
+		   		oceans = topojson.object(jsonMap, jsonMap.objects.oceans),
 		   		urbanAreas = topojson.object(jsonMap, jsonMap.objects.urban);
 
 
-/*
-if(['Benin','Egypt','Gambia','Libya','Madagascar','Malawi','Nigeria','Togo','Tunisia','Uganda'].indexOf(country) !== -1) {
-	var scaleFactor = 67;
-	var widthOffset = 145;
-	var heightOffset = 40;
-} else if(['Ghana','Kenya','Swaziland'].indexOf(country) !== -1) {
-	var scaleFactor = 55;
-} else {
-	var scaleFactor = 55;
-	var widthOffset = 175;
-	var heightOffset = 100;
-}
-*/
+
+
 
 /*
 	see http://stackoverflow.com/questions/14492284/center-a-map-in-d3-given-a-geojson-object
 	and https://groups.google.com/forum/#!msg/d3-js/pvovPbU5tmo/NNVOC8cIPjUJ
 */
+
+//ad hocery to get things to fit about right
+if(['Burkina_Faso','Central_African_Republic','Ethiopia','Gambia','Guinea','Morocco','Niger','Nigeria','South_Sudan'].indexOf(country) !== -1) {
+	var scaleFactor = 1.3;
+} else if(['Benin','Chad','Ghana','Madagascar','Malawi','Mauritania','Mozambique','Namibia','Cameroon','Togo'].indexOf(country) !== -1) {
+	//This part is broken: remove countries until looks half decent, need general solution
+	var scaleFactor = 0.95;
+} else {
+	var scaleFactor = 1;
+}
 
 self.projection = d3.geo.mercator()
     .scale(1)
@@ -84,10 +83,13 @@ self.projection = d3.geo.mercator()
 var path = d3.geo.path()
     .projection(self.projection);
 
-var b = path.bounds(subunits),
-    s = 1 / Math.max((b[1][0] - b[0][0]) / this.mapWidth, (b[1][1] - b[0][0]) / this.mapHeight),
-    //s = 1 / ((b[1][0] - b[0][0]) / this.mapWidth),
-    t = [(this.mapWidth - s * (b[1][0] + b[0][0])) / 2, (this.mapHeight - s * (b[1][1] + b[0][1])) / 2];
+var bs = path.bounds(subunits),
+	//bo = path.bounds(oceans),
+	//bb = [[Math.min(bs[0][0],bo[0][0]), Math.min(bs[0][1],bo[0][1])], [Math.max(bs[1][0],bo[1][0]), Math.max(bs[1][1],bo[1][1])]],
+    //s = 1 / Math.max((bb[1][0] - bb[0][0]) / this.mapWidth, (bb[1][1] - bb[0][0]) / this.mapHeight),
+    bb = bs,
+    s = scaleFactor / ((bb[1][0] - bb[0][0]) / this.mapWidth),
+    t = [(this.mapWidth - s * (bb[1][0] + bb[0][0])) / 2, (this.mapHeight - s * (bb[1][1] + bb[0][1])) / 2];
 
 self.projection
     .scale(s)
@@ -208,7 +210,7 @@ Map.prototype.redraw = function(resultArr) {
 		circle.setAttributeNS(null, "cy", proj[1] + d.LATITUDE_JITTER);
 		circle.setAttributeNS(null, "cx", proj[0] + d.LONGITUDE_JITTER);
 		if(fatalitySizing) {
-			circle.setAttributeNS(null, "r", Math.log(d.FATALITIES+3)+2);
+			circle.setAttributeNS(null, "r", Math.log(d.FATALITIES)*2+2);
 		} else {
 			circle.setAttributeNS(null, "r", 4);
 		}

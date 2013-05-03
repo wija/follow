@@ -47,7 +47,7 @@ function redrawOnTabSwitch() {
 }
 
 firstTime = true;
-loadNewCountry("Cameroon");
+loadNewCountry("Algeria");
 
 function loadNewCountry(country) {
 	
