@@ -3,8 +3,9 @@
 p = new Palette();
 dateFormat = d3.time.format("%x");
 
-mapWidth = 700;
-mapHeight = 420;
+//was 700x420
+mapWidth = window.innerWidth + 150;
+mapHeight = mapWidth * 0.6;
 
 startDate = null;
 endDate = null;
@@ -14,7 +15,7 @@ fatalitySizing = true;
 selectedTab = "#map";
 
 masterCachedResultArr = [];
-function redraw(resultArr) {
+function redraw(country, resultArr) {
 	switch(selectedTab) {
 		case "#map":
 			map.redraw(resultArr);
@@ -24,13 +25,19 @@ function redraw(resultArr) {
 			break;
 		case "#chronology":
 			table.redraw(resultArr);
+			break;
+		case "#interactions":
+			graphView.redraw(resultArr, country);
+			//interactionsTable.redraw(resultArr, country);	
+			break;
 		case "#country-selector":
 			break;
 	}
+
 	masterCachedResultArr = resultArr;
 }
 
-function redrawOnTabSwitch() {
+function redrawOnTabSwitch(country) {
 	switch(selectedTab) {
 		case "#map":
 			map.redraw(masterCachedResultArr);
@@ -40,13 +47,18 @@ function redrawOnTabSwitch() {
 			break;
 		case "#chronology":
 			table.redraw(masterCachedResultArr);
+			break;
+		//case "#interactions":
+		//	graphView.redraw(masterCachedResultArr, country);
+			//interactionsTable.redraw(masterCachedResultArr, country);	
+			break;
 		case "#country-selector":
 			break;
 	}
 }
 
 firstTime = true;
-loadNewCountry("Libya");
+loadNewCountry("Algeria");
 
 function loadNewCountry(country) {
 	
@@ -55,21 +67,25 @@ function loadNewCountry(country) {
 		timelines.destruct();
 		map.destruct();
 		table.destruct();
+		//interactionsTable.destruct();
+		//graphView.destruct();
 	}
 
 	loadDataset(country, 
 				mapHeight, mapWidth, 
-				redraw,
+				redraw.bind(null, country),
 				function() {
 					map = new Map(country, 
 								  mapWidth, mapHeight, 
-								  "#mapTable", 
+								  "#forTheMap", 
 								  function() {
 								  		timelines = new Timelines("#dataTable", 
 								  								  new Date("1/1/1997"), 
 								  								  new Date("2/28/2013"),
 								  								  country);
 								  		table = new Table("chronologyPanel", country);
+								  		//interactionsTable = new InteractionsTable("#interactionsPanel", country);
+										//graphView = new GraphView("#interactionsPanel", country);
 										controls = new Controls(ps, country);
 										controls.attachEventHandlers();
 										if(firstTime) {
@@ -78,7 +94,12 @@ function loadNewCountry(country) {
 											//makeCountryList("countrySelector");
 											firstTime = false;
 										}
+										$('a[data-toggle="tab"]').on('shown', function (e) {
+  											selectedTab = e.target.attributes.href.value;
+  											redrawOnTabSwitch(country);
+										});
 										$('#load-data').modal('hide');
+
 								  });
 				});
 

@@ -9,6 +9,7 @@ function Table(parentElement, country) {
 	
 	this.tableContainer = document.createElement("div");
 	this.tableContainer.setAttribute("id", "tableContainer");
+	this.tableContainer.style.width = window.innerWidth - 460;
 	document.getElementById(this.parentElement).appendChild(this.tableContainer);
 }
 

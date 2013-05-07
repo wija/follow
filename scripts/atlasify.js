@@ -53,13 +53,13 @@ function makeMapFiles(countryArray, jsonArray) {
 	var imageWidth = 700,
 		imageHeight = 420;
 
-	var adjust = 0.1, //a propertion expressed as 0-1
+	var adjust = 0.5, //a propertion expressed as 0-1
 		countryWidth = Math.abs(country.east[0] - country.west[0]),
 		countryHeight = Math.abs(country.north[0] - country.south[0]),
-		adjustedWest = +country.west[0] - countryWidth * adjust,
-		adjustedEast = +country.east[0] + countryWidth * adjust,
-		adjustedNorth = +country.north[0] + countryHeight * adjust,
-		adjustedSouth = +country.south[0] - countryHeight * adjust;
+		adjustedWest = +country.west[0] - countryWidth * adjust * 0.75,
+		adjustedEast = +country.east[0] + countryWidth * adjust * 0.25,
+		adjustedNorth = +country.north[0] - countryHeight * adjust * 0.7,
+		adjustedSouth = +country.south[0] + countryHeight * adjust * 0.3;
 
 	var xScale = countryWidth / imageWidth,
 		yScale = countryHeight / imageHeight;
@@ -70,16 +70,14 @@ function makeMapFiles(countryArray, jsonArray) {
 	if(yScale > xScale) {
 		desiredCountryWidth = imageWidth * yScale;
 		excess = (desiredCountryWidth - countryWidth) / 2;
-		adjustedWest = +country.west[0] - excess;
-		adjustedEast = +country.east[0] + excess;
+		adjustedWest = +country.west[0] - (excess * 2);
+		adjustedEast = +country.east[0];
 	} else {
 		desiredCountryHeight = imageHeight * xScale;
 		excess = (desiredCountryHeight - countryHeight) / 2;
-		adjustedNorth = +country.north[0] + excess;
-		adjustedSouth = +country.south[0] - excess;
+		adjustedNorth = +country.north[0] - (excess * 2);
+		adjustedSouth = +country.south[0];
 	}
-
-	console.log(Math.abs(adjustedNorth - adjustedSouth) / Math.abs(adjustedEast - adjustedWest));
 
 	var jsonItem = { countryName: country.countryName[0],
 					 countryCode: country.countryCode[0],

@@ -17,7 +17,7 @@ function Controls(queryTemplate, country) {
 
 	//has devolved into magic numbers at this point
 	//currently duplicated in Controls.js
-	this.dimensions = { width: 700, height: 40 };  //height=40 was for rendering each separately
+	this.dimensions = { width: window.innerWidth - 400, height: 40 };  //height=40 was for rendering each separately
 	this.padding = { outerPaddingWidth: 5, placenameWidth: 70, innerPaddingWidth: 5,
    				   outerPaddingHeight: 2, labelHeight: 10, tickToLabelHeight: 3, tickHeight: 5, 
    				   axisToIncidentsHeight: 5 };
@@ -58,6 +58,8 @@ function Controls(queryTemplate, country) {
 	    .selectAll("rect")
 	      .attr("y", 1)
 	      .attr("height", 18);
+
+	document.getElementById("dateSelector").style.width = this.corners.xTimelineRight - this.corners.xTimelineLeft - this.padding.placenameWidth + 10;
 
 	//not really so great that this calls dataset by name
 	function makeCheckBoxes(idName, fieldName) {
