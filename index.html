@@ -14,6 +14,10 @@
 
 <style type="text/css">
 
+body {
+    background-color: #FCFCFC;
+}
+
 #forTheMap {
     z-index: -10;
     left: 0px;
@@ -60,23 +64,29 @@
 #dateSelector {
     position: fixed;
     display: inline-block;
+    left: 460px;
+    top: 60px;
     background-color: rgb(242, 242, 242);
     opacity:0.9;
-    padding: 5px;
+    padding: 10px;
     border-color: rgb(212, 212, 212);
     box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0.9090908765792847px 10px 0px;
     color: rgb(51, 51, 51);
     opacity: 0.9;
-    width: 555px;
+    /* width: 555px; */
     z-index: 5;
 }
 
 #sidebarControls {
+    float: left;
+    left: 40px;
+    top: 60px;
+    width: 300px;
     position:fixed;
     z-index: 5;
     background-color: rgb(242, 242, 242);
     opacity:0.9;
-    padding: 5px;
+    padding: 20px;
     border-color: rgb(212, 212, 212);
     box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0.9090908765792847px 10px 0px;
     color: rgb(51, 51, 51);
@@ -84,21 +94,36 @@
 
 #timelinesAxis {
     position: fixed;
+    /* left: 380px; */
+    left: 380px;
+    /* top: 50px; */
+    /*
     background-color: rgb(242, 242, 242);
     opacity:0.9;
     padding: 5px;
     border-color: rgb(212, 212, 212);
     box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0.9090908765792847px 10px 0px;
     color: rgb(51, 51, 51);
+    */
     z-index: 4;
 }
 
 
-#mapTable, #timelinesPanel, #chronologyPanel, #timelinesAxis {
+#mapTable, #timelinesAxis {
     padding-top: 50px;
 }
 
+#timelinesPanel {
+    left: 380px;
+    top: 130px;
+    position:absolute;
+}
 
+#chronologyPanel, #interactionsPanel {
+    left: 420px;
+    top: 130px;
+    position:absolute;
+}
 
 .selectBox {
 	fill: none;
@@ -192,12 +217,12 @@ circle {
 
 #chronology {
     margin-left: 10px;
-    width: 545px;
+    /* width: 545px; */
 }
 
 .chronology-item {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   margin-bottom: 12px;
   line-height: 120%;
 }
@@ -218,9 +243,35 @@ circle {
     fill: none;
 }
 
+path.link {
+  fill: none;
+  stroke: #666;
+  /* stroke-width: 1.5px; */
+}
+
+
 </style>
 </head>
 <body>
+		<div id="sidebarControls">
+			<form id="queryForm"> 
+				<span>
+					<div>
+						<div>
+							<span class="label" style="margin-bottom:5px;">Search:</span><br/>
+							<input type="text" id="inputDescription">
+							<br/>
+						</div>
+						<span class="label" style="margin-bottom:5px;">Incident Type:</span><br/>
+						<div id="selectIncidentType"></div>
+						<br/>
+						<div id="countryName"></div>
+
+					</div>
+				</div>
+				</span>
+			</form>	
+		</div>
 
 <div class="container">
 
@@ -264,6 +315,7 @@ circle {
 		            	<a href="#map" role="button" class="btn active" data-toggle="tab">Map</a>
 		            	<a href="#timelines" role="button" class="btn" data-toggle="tab">Timeline</a>
 		            	<a href="#chronology" role="button" class="btn" data-toggle="tab">Chronology</a>
+		            	<!-- <a href="#interactions" role="button" class="btn" data-toggle="tab">Interactions</a> -->
 		            </div>
 		        </form>
   			</div>
@@ -271,44 +323,10 @@ circle {
 	</div>
 </div>
 
-<div class="row">
-
-	<div class="span3">
-
-		<div id="sidebarControls">
-		<form id="queryForm"> 
-			<span>
-				<div>
-					<div>
-						<span class="label" style="margin-bottom:5px;">Search:</span><br/>
-						<input type="text" id="inputDescription">
-						<br/>
-					</div>
-					<span class="label" style="margin-bottom:5px;">Incident Type:</span><br/>
-					<div id="selectIncidentType"></div>
-					<br/>
-					<div id="countryName"></div>
-<!--
-					<br/>
-					<span class="label">Size by Number of Fatalities:</span><br/>
-					<div id="fatalitySizing">
-						<label class="radio">
-							<input type="radio" name="optionsFS" id="optionsFS1" value="on" checked>On
-						</label>
-						<label class="radio">
-							<input type="radio" name="optionsFS" id="optionsFS2" value="off">Off
-						</label>
-					</div>
--->
-				</div>
-			</div>
-			</span>
-
-		</form>	
-
-	</div>
-
-	<div class="span9 offset4">
+<!-- <div class="row"> -->
+<div>
+	<!-- <div class="span9 offset4"> -->
+	<div> 
 
 		<div id="dateSelector"></div>
 
@@ -332,6 +350,10 @@ circle {
 		  	<div class="tab-pane" id="chronology">
 		  		<div id="chronologyPanel"></div>
 		  	</div>
+
+		  	<div class="tab-pane" id="interactions">
+		  		<div id="interactionsPanel"></div>
+		  	</div>
 		
 		</div>
 
@@ -348,8 +370,7 @@ circle {
 	<div class="modal-body">
 		<p>Select a country and click "load" to get data and maps for a different country. This may take a few seconds.</p>
 		<div id="countrySelector">
-<!-- <label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Algeria" unchecked>Algeria</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Angola" unchecked>Angola</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Benin" unchecked>Benin</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Botswana" unchecked>Botswana</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Burkina_Faso" unchecked>Burkina Faso</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Burundi" unchecked>Burundi</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Cameroon" unchecked>Cameroon</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Central_African_Republic" unchecked>Central African Republic</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Chad" unchecked>Chad</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Democratic_Republic_of_the_Congo" unchecked>Democratic Republic of the Congo</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Djibouti" unchecked>Djibouti</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Egypt" unchecked>Egypt</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Equatorial_Guinea" unchecked>Equatorial Guinea</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Eritrea" unchecked>Eritrea</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Ethiopia" unchecked>Ethiopia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Gabon" unchecked>Gabon</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Gambia" unchecked>Gambia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Ghana" unchecked>Ghana</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Guinea-Bissau" unchecked>Guinea-Bissau</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Guinea" unchecked>Guinea</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Ivory_Coast" unchecked>Ivory Coast</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Kenya" unchecked>Kenya</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Lesotho" unchecked>Lesotho</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Liberia" unchecked>Liberia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Libya" unchecked>Libya</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Madagascar" unchecked>Madagascar</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Malawi" unchecked>Malawi</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Mali" unchecked>Mali</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Mauritania" unchecked>Mauritania</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Morocco" unchecked>Morocco</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Mozambique" unchecked>Mozambique</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Namibia" unchecked>Namibia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Niger" unchecked>Niger</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Nigeria" unchecked>Nigeria</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Republic_of_Congo" unchecked>Republic of Congo</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Rwanda" unchecked>Rwanda</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Senegal" unchecked>Senegal</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Sierra_Leone" unchecked>Sierra Leone</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Somalia" unchecked>Somalia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="South_Africa" unchecked>South Africa</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="South_Sudan" unchecked>South Sudan</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Sudan" unchecked>Sudan</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Swaziland" unchecked>Swaziland</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Tanzania" unchecked>Tanzania</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Togo" unchecked>Togo</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Tunisia" unchecked>Tunisia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Uganda" unchecked>Uganda</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Zambia" unchecked>Zambia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Zimbabwe" unchecked>Zimbabwe</label> -->
-<label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Algeria" unchecked>Algeria</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Angola" unchecked>Angola</label><!--<label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Benin" unchecked>Benin</label>--><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Botswana" unchecked>Botswana</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Burkina_Faso" unchecked>Burkina Faso</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Burundi" unchecked>Burundi</label><!--<label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Cameroon" unchecked>Cameroon</label>--><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Central_African_Republic" unchecked>Central African Republic</label><!--<label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Chad" unchecked>Chad</label>--><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Democratic_Republic_of_the_Congo" unchecked>Democratic Republic of the Congo</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Djibouti" unchecked>Djibouti</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Egypt" unchecked>Egypt</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Equatorial_Guinea" unchecked>Equatorial Guinea</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Eritrea" unchecked>Eritrea</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Ethiopia" unchecked>Ethiopia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Gabon" unchecked>Gabon</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Gambia" unchecked>Gambia</label><!--<label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Ghana" unchecked>Ghana</label>--><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Guinea-Bissau" unchecked>Guinea-Bissau</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Guinea" unchecked>Guinea</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Ivory_Coast" unchecked>Ivory Coast</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Kenya" unchecked>Kenya</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Lesotho" unchecked>Lesotho</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Liberia" unchecked>Liberia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Libya" unchecked>Libya</label><!--<label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Madagascar" unchecked>Madagascar</label>--><!--<label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Malawi" unchecked>Malawi</label>--><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Mali" unchecked>Mali</label><!--<label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Mauritania" unchecked>Mauritania</label>--><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Morocco" unchecked>Morocco</label><!--<label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Mozambique" unchecked>Mozambique</label>--><!--<label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Namibia" unchecked>Namibia</label>--><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Niger" unchecked>Niger</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Nigeria" unchecked>Nigeria</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Republic_of_Congo" unchecked>Republic of Congo</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Rwanda" unchecked>Rwanda</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Senegal" unchecked>Senegal</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Sierra_Leone" unchecked>Sierra Leone</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Somalia" unchecked>Somalia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="South_Africa" unchecked>South Africa</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="South_Sudan" unchecked>South Sudan</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Sudan" unchecked>Sudan</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Swaziland" unchecked>Swaziland</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Tanzania" unchecked>Tanzania</label><!--<label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Togo" unchecked>Togo</label>--><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Tunisia" unchecked>Tunisia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Uganda" unchecked>Uganda</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Zambia" unchecked>Zambia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Zimbabwe" unchecked>Zimbabwe</label>
+			<label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Algeria" unchecked>Algeria</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Angola" unchecked>Angola</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Benin" unchecked>Benin</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Botswana" unchecked>Botswana</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Burkina_Faso" unchecked>Burkina Faso</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Burundi" unchecked>Burundi</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Cameroon" unchecked>Cameroon</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Central_African_Republic" unchecked>Central African Republic</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Chad" unchecked>Chad</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Democratic_Republic_of_the_Congo" unchecked>Democratic Republic of the Congo</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Djibouti" unchecked>Djibouti</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Egypt" unchecked>Egypt</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Equatorial_Guinea" unchecked>Equatorial Guinea</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Eritrea" unchecked>Eritrea</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Ethiopia" unchecked>Ethiopia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Gabon" unchecked>Gabon</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Gambia" unchecked>Gambia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Ghana" unchecked>Ghana</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Guinea-Bissau" unchecked>Guinea-Bissau</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Guinea" unchecked>Guinea</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Ivory_Coast" unchecked>Ivory Coast</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Kenya" unchecked>Kenya</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Lesotho" unchecked>Lesotho</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Liberia" unchecked>Liberia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Libya" unchecked>Libya</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Madagascar" unchecked>Madagascar</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Malawi" unchecked>Malawi</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Mali" unchecked>Mali</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Mauritania" unchecked>Mauritania</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Morocco" unchecked>Morocco</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Mozambique" unchecked>Mozambique</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Namibia" unchecked>Namibia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Niger" unchecked>Niger</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Nigeria" unchecked>Nigeria</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Republic_of_Congo" unchecked>Republic of Congo</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Rwanda" unchecked>Rwanda</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Senegal" unchecked>Senegal</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Sierra_Leone" unchecked>Sierra Leone</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Somalia" unchecked>Somalia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="South_Africa" unchecked>South Africa</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="South_Sudan" unchecked>South Sudan</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Sudan" unchecked>Sudan</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Swaziland" unchecked>Swaziland</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Tanzania" unchecked>Tanzania</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Togo" unchecked>Togo</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Tunisia" unchecked>Tunisia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Uganda" unchecked>Uganda</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Zambia" unchecked>Zambia</label><label class="radio"><input type="radio" name="countryOptionsRadios" id="countryOptions" value="Zimbabwe" unchecked>Zimbabwe</label>
 		</div>
 	</div>
 	<div class="modal-footer">
@@ -407,7 +428,7 @@ fatalitySizing = true;
 selectedTab = "#map";
 
 masterCachedResultArr = [];
-function redraw(resultArr) {
+function redraw(country, resultArr) {
 	switch(selectedTab) {
 		case "#map":
 			map.redraw(resultArr);
@@ -417,13 +438,19 @@ function redraw(resultArr) {
 			break;
 		case "#chronology":
 			table.redraw(resultArr);
+			break;
+		case "#interactions":
+			graphView.redraw(resultArr, country);
+			//interactionsTable.redraw(resultArr, country);	
+			break;
 		case "#country-selector":
 			break;
 	}
+
 	masterCachedResultArr = resultArr;
 }
 
-function redrawOnTabSwitch() {
+function redrawOnTabSwitch(country) {
 	switch(selectedTab) {
 		case "#map":
 			map.redraw(masterCachedResultArr);
@@ -433,6 +460,11 @@ function redrawOnTabSwitch() {
 			break;
 		case "#chronology":
 			table.redraw(masterCachedResultArr);
+			break;
+		//case "#interactions":
+		//	graphView.redraw(masterCachedResultArr, country);
+			//interactionsTable.redraw(masterCachedResultArr, country);	
+			break;
 		case "#country-selector":
 			break;
 	}
@@ -448,11 +480,13 @@ function loadNewCountry(country) {
 		timelines.destruct();
 		map.destruct();
 		table.destruct();
+		//interactionsTable.destruct();
+		//graphView.destruct();
 	}
 
 	loadDataset(country, 
 				mapHeight, mapWidth, 
-				redraw,
+				redraw.bind(null, country),
 				function() {
 					map = new Map(country, 
 								  mapWidth, mapHeight, 
@@ -463,6 +497,8 @@ function loadNewCountry(country) {
 								  								  new Date("2/28/2013"),
 								  								  country);
 								  		table = new Table("chronologyPanel", country);
+								  		//interactionsTable = new InteractionsTable("#interactionsPanel", country);
+										//graphView = new GraphView("#interactionsPanel", country);
 										controls = new Controls(ps, country);
 										controls.attachEventHandlers();
 										if(firstTime) {
@@ -471,7 +507,12 @@ function loadNewCountry(country) {
 											//makeCountryList("countrySelector");
 											firstTime = false;
 										}
+										$('a[data-toggle="tab"]').on('shown', function (e) {
+  											selectedTab = e.target.attributes.href.value;
+  											redrawOnTabSwitch(country);
+										});
 										$('#load-data').modal('hide');
+
 								  });
 				});
 
@@ -582,14 +623,6 @@ function loadDataset(country, mapHeight, mapWidth, qtCallback, callback) {
 	});
 }//Map.js
 
-/* parentElement = #mapTable
-	this.mapWidth = 700;
-	this.mapHeight = 420;
-	callback =
-		drawTimelines();
-		enableEventHandlers();
-		intializeControls();
-*/
 !function(scope) {
 
 function Map(country, mapWidth, mapHeight, parentElement, callback) {
@@ -598,14 +631,6 @@ function Map(country, mapWidth, mapHeight, parentElement, callback) {
 	this.mapHeight = mapHeight;
 
 	this.cachedResultArr = [];
-
-	this.mapContainer = 
-		d3.select(parentElement).append("svg")
-	      .attr("width", this.mapWidth)
-	      .attr("height", this.mapHeight)
-	      .attr("id", "mapTableSvg");
-
-	this.svgMap = this.mapContainer;
 
 	var filename;
 	if(country === "Democratic_Republic_of_the_Congo") {
@@ -618,155 +643,106 @@ function Map(country, mapWidth, mapHeight, parentElement, callback) {
 
 	var self = this;
 
-	d3.json("maps/bounding_boxes.json", function(error, boundingBoxes) {
 
-		if(country === "Democratic_Republic_of_the_Congo") {
-			var lookupVal = "Congo"; 
-		} else if(country === "Republic_of_Congo") {
-			var lookupVal = "Republic_of_the_Congo";
-		} else {
-			var lookupVal = country; 
-		}
+	d3.json("maps/" + filename, function(error, jsonMap) {
 
-		var boundingBox = boundingBoxes.filter(function(o) { return o.countryName === lookupVal.replace(/_/g,' '); })[0];
+	 	var subunits = topojson.object(jsonMap, jsonMap.objects.subunits),
+	 		admin1 = topojson.object(jsonMap, jsonMap.objects.admin1),
+	    	places = topojson.object(jsonMap, jsonMap.objects.places),
+	   		rivers = topojson.object(jsonMap, jsonMap.objects.rivers),
+	   		oceans = topojson.object(jsonMap, jsonMap.objects.oceans),
+	   		urbanAreas = topojson.object(jsonMap, jsonMap.objects.urban);
 
-		d3.json("maps/" + filename, function(error, jsonMap) {
-
-		 	var subunits = topojson.object(jsonMap, jsonMap.objects.subunits),
-		 		admin1 = topojson.object(jsonMap, jsonMap.objects.admin1),
-		    	places = topojson.object(jsonMap, jsonMap.objects.places),
-		   		rivers = topojson.object(jsonMap, jsonMap.objects.rivers),
-		   		oceans = topojson.object(jsonMap, jsonMap.objects.oceans),
-		   		urbanAreas = topojson.object(jsonMap, jsonMap.objects.urban);
+		/*
+			Re meaning of d3's scale and translate, in addition to the docs, see
+			http://stackoverflow.com/questions/14492284/center-a-map-in-d3-given-a-geojson-object
+			https://groups.google.com/forum/#!msg/d3-js/pvovPbU5tmo/NNVOC8cIPjUJ
+			http://bl.ocks.org/mbostock/4707858
+		*/
 
 
+		self.projection = d3.geo.mercator()
+		      .scale(1)
+		      .translate([0, 0]);
 
+		var path = d3.geo.path()
+		    .projection(self.projection);
 
+		var width = window.innerWidth,
+		    b = path.bounds(subunits),
+		    s = 1 / ((b[1][0] - b[0][0]) / width),
+		    height = s * (b[1][1] - b[0][1]),
+		    t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
 
-/*
-	see http://stackoverflow.com/questions/14492284/center-a-map-in-d3-given-a-geojson-object
-	and https://groups.google.com/forum/#!msg/d3-js/pvovPbU5tmo/NNVOC8cIPjUJ
-*/
+		self.projection
+			.scale(s)
+		    .translate(t);
 
-//ad hocery to get things to fit about right
-if(['Burkina_Faso','Central_African_Republic','Ethiopia','Gambia','Guinea','Morocco','Niger','Nigeria','South_Sudan'].indexOf(country) !== -1) {
-	var scaleFactor = 1.3;
-} else if(['Benin','Chad','Ghana','Madagascar','Malawi','Mauritania','Mozambique','Namibia','Cameroon','Togo'].indexOf(country) !== -1) {
-	//This part is broken: remove countries until looks half decent, need general solution
-	var scaleFactor = 0.95;
-} else {
-	var scaleFactor = 1;
-}
+		self.svgMap = d3.select(parentElement).append("svg")
+		    .attr("width", width)
+		    .attr("height", height);
 
-self.projection = d3.geo.mercator()
-    .scale(1)
-    .translate([0, 0]);
+		self.svgMap.selectAll(".subunit")
+			.data(subunits.geometries)
+		.enter().append("path")
+			.attr("class", function(d) { return "subunit " + d.id; })
+			.attr("d", path);
 
-var path = d3.geo.path()
-    .projection(self.projection);
+		self.svgMap.selectAll(".river")
+			.data(rivers.geometries)
+		.enter().append("path")
+			.attr("class", "river")
+			.attr("style", function(d) { return "stroke-width:" + (d.properties.strokeweig * 2.5);})
+			.attr("d", path);
 
-var bs = path.bounds(subunits),
-	//bo = path.bounds(oceans),
-	//bb = [[Math.min(bs[0][0],bo[0][0]), Math.min(bs[0][1],bo[0][1])], [Math.max(bs[1][0],bo[1][0]), Math.max(bs[1][1],bo[1][1])]],
-    //s = 1 / Math.max((bb[1][0] - bb[0][0]) / this.mapWidth, (bb[1][1] - bb[0][0]) / this.mapHeight),
-    bb = bs,
-    s = scaleFactor / ((bb[1][0] - bb[0][0]) / this.mapWidth),
-    t = [(this.mapWidth - s * (bb[1][0] + bb[0][0])) / 2, (this.mapHeight - s * (bb[1][1] + bb[0][1])) / 2];
+		self.svgMap.selectAll(".urbanArea")
+			.data(urbanAreas.geometries)
+		.enter().append("path")
+			.attr("class", "urban-area")
+		  	.attr("d", path);
 
-self.projection
-    .scale(s)
-    .translate(t);
-/*
-		    	//var scale  = scaleFactor * (this.mapWidth) / (boundingBox.east - boundingBox.west);
-		    	//var s  = Math.max((this.mapWidth) / (boundingBox.east - boundingBox.west), (this.mapHeight) / (boundingBox.north - boundingBox.south));
-		    	var s  = (this.mapWidth) / (boundingBox.east - boundingBox.west);
-				//var offset  = [this.mapWidth/2 + widthOffset, this.mapHeight/2 + heightOffset];
-		    	var offset  = [this.mapWidth - s * (boundingBox.east - boundingBox.west) / 2, this.mapHeight - s * (boundingBox.north - boundingBox.south) / 2];
-		    	var center = [ boundingBox.west + (boundingBox.east - boundingBox.west)/2, 
-		    				   boundingBox.south + (boundingBox.north - boundingBox.south)/2];
+	  	//is this part necessary?
+	  	self.svgMap.append("path")
+	    	.datum(topojson.mesh(jsonMap, jsonMap.objects.urban, function(a, b) { return a !== b; }))
+	    	.attr("d", path)
+	    	.attr("class", "urban-area-boundary");
 
-		    self.projection = d3.geo.mercator()
-		        				.scale(this.mapWidth*s/20)
-		        				.center(center)
-		        				.translate(offset);
-*/
-			var path = d3.geo.path()
-			    .projection(self.projection)
-			    .pointRadius(2);
+		self.svgMap.append("path")
+			.datum(topojson.mesh(jsonMap, jsonMap.objects.subunits, function(a, b) { return a !== b; }))
+			.attr("d", path)
+			.attr("class", "subunit-boundary");
 
-			self.svgMap.append("rect")
-		    	.attr("class", "background")
-		    	.attr("width", self.mapWidth)
-		    	.attr("height", self.mapHeight);
+		self.svgMap.selectAll(".admin1subunit")
+			.data(admin1.geometries)
+		.enter().append("path")
+			.attr("class", function(d) { return "admin1subunit " + d.id; })
+			.attr("d", path);
 
-			self.svgMap.selectAll(".subunit")
-				.data(subunits.geometries)
-			.enter().append("path")
-				.attr("class", function(d) { return "subunit " + d.id; })
-				.attr("d", path);
+		self.svgMap.append("path")
+			.datum(topojson.mesh(jsonMap, jsonMap.objects.admin1, function(a, b) { return a !== b; }))
+			.attr("d", path)
+			.attr("class", "admin1-boundary");
 
-			self.svgMap.selectAll(".river")
-				.data(rivers.geometries)
-			.enter().append("path")
-				.attr("class", "river")
-				.attr("style", function(d) { return "stroke-width:" + (d.properties.strokeweig * 2.5);})
-				.attr("d", path);
-/*
-			self.svgMap.selectAll(".ocean")
-				.data(oceans.geometries)
-			.enter().append("path")
-				.attr("class", "ocean")
-				.attr("d", path);
-*/
-			self.svgMap.selectAll(".urbanArea")
-				.data(urbanAreas.geometries)
-			.enter().append("path")
-				.attr("class", "urban-area")
-			  	.attr("d", path);
+		self.svgMap.append("path")
+			.datum(places)
+			.attr("d", path)
+			.attr("class", "place");
 
-		  	//is this part necessary?
-		  	self.svgMap.append("path")
-		    	.datum(topojson.mesh(jsonMap, jsonMap.objects.urban, function(a, b) { return a !== b; }))
-		    	.attr("d", path)
-		    	.attr("class", "urban-area-boundary");
+		self.svgMap.selectAll(".place-label")
+			.data(places.geometries)
+		.enter().append("text")
+			.attr("class", "place-label")
+			.attr("transform", function(d) { return "translate(" + self.projection(d.coordinates) + ")"; })
+			.attr("x", function(d) { return d.coordinates[0] > -1 ? 6 : -6; })
+			.attr("dy", ".35em")
+			.style("text-anchor", function(d) { return d.coordinates[0] > -1 ? "start" : "end"; })
+			.text(function(d) { return d.properties.name; });
 
-			self.svgMap.append("path")
-				.datum(topojson.mesh(jsonMap, jsonMap.objects.subunits, function(a, b) { return a !== b; }))
-				.attr("d", path)
-				.attr("class", "subunit-boundary");
+		self.svgMap.append("g")
+			.attr("id", "circleGroup");
 
-			self.svgMap.selectAll(".admin1subunit")
-				.data(admin1.geometries)
-			.enter().append("path")
-				.attr("class", function(d) { return "admin1subunit " + d.id; })
-				.attr("d", path);
+		callback();
 
-			self.svgMap.append("path")
-				.datum(topojson.mesh(jsonMap, jsonMap.objects.admin1, function(a, b) { return a !== b; }))
-				.attr("d", path)
-				.attr("class", "admin1-boundary");
-
-			self.svgMap.append("path")
-				.datum(places)
-				.attr("d", path)
-				.attr("class", "place");
-
-			self.svgMap.selectAll(".place-label")
-				.data(places.geometries)
-			.enter().append("text")
-				.attr("class", "place-label")
-				.attr("transform", function(d) { return "translate(" + self.projection(d.coordinates) + ")"; })
-				.attr("x", function(d) { return d.coordinates[0] > -1 ? 6 : -6; })
-				.attr("dy", ".35em")
-				.style("text-anchor", function(d) { return d.coordinates[0] > -1 ? "start" : "end"; })
-				.text(function(d) { return d.properties.name; });
-
-			self.mapContainer.append("g")
-				.attr("id", "circleGroup");
-
-			callback();
-
-		});
 	});
 }
 
@@ -777,7 +753,6 @@ Map.prototype.redraw = function(resultArr) {
 		exit = diffs[1];
 
 	var svgMapNode = document.getElementById("circleGroup");
-	//var svgMapNode = document.getElementById("svgMap");
 
 	var enterFragment = document.createDocumentFragment();
 
@@ -792,7 +767,7 @@ Map.prototype.redraw = function(resultArr) {
 		circle.setAttributeNS(null, "cy", proj[1] + d.LATITUDE_JITTER);
 		circle.setAttributeNS(null, "cx", proj[0] + d.LONGITUDE_JITTER);
 		if(fatalitySizing) {
-			circle.setAttributeNS(null, "r", Math.log(d.FATALITIES)*2+2);
+			circle.setAttributeNS(null, "r", Math.log(d.FATALITIES+1)*2 + 2);
 		} else {
 			circle.setAttributeNS(null, "r", 4);
 		}
@@ -808,14 +783,10 @@ Map.prototype.redraw = function(resultArr) {
 
 	svgMapNode.appendChild(enterFragment);
 
-	//**CAN REINTRODUCE THIS: JUST REMOVE AND REINSERT THE PARENT
-	//**WILL DOCUMENT.GETELEMENTID WORK WHEN ITS REMOVED?
-	//var insertFunction = removeToInsertLater(svgMapNode);
 	for(var i = 0, n = exit.length; i < n; i++) {
 		var d = exit[i];
 		svgMapNode.removeChild(document.getElementById(d.MY_EVENT_ID));
 	}
-	//insertFunction();
 
 	this.cachedResultArr = resultArr;
 }
@@ -823,12 +794,12 @@ Map.prototype.redraw = function(resultArr) {
 Map.prototype.redrawCompletely = function() {
 	var cs = document.getElementById("circleGroup").childNodes;
 	for(var i = 0, n = cs.length; i < n; i++) {
-		cs[i].setAttribute("r", fatalitySizing ? Math.log(+cs[i].getAttribute("data-fatalities") + 2) + 2 : 3);
+		cs[i].setAttribute("r", fatalitySizing ? Math.log(+cs[i].getAttribute("data-fatalities") + 1) * 2 + 2 : 3);
 	}
 }
 
 Map.prototype.destruct = function() {
-	this.mapContainer.remove();
+	this.svgMap.remove();
 }
 
 scope.Map = Map;
@@ -854,16 +825,18 @@ function Timelines(parentElement, startDate, endDate, country) {
 
 	//has devolved into magic numbers at this point
 	//currently duplicated in Controls.js
-	this.dimensions = { width: 700, height: 40 };  //height=40 was for rendering each separately
-	this.padding = { outerPaddingWidth: 5, placenameWidth: 70, innerPaddingWidth: 5,
+	this.dimensions = { width: window.innerWidth - 400, height: 40 };  //height=40 was for rendering each separately
+	this.padding = { outerPaddingWidth: 20, placenameWidth: 70, innerPaddingWidth: 5,
    				   outerPaddingHeight: 2, labelHeight: 10, tickToLabelHeight: 3, tickHeight: 5, 
    				   axisToIncidentsHeight: 5 };
 	this.corners = { xTimelineLeft: this.padding.outerPaddingWidth + this.padding.placenameWidth + this.padding.innerPaddingWidth,
-   				   xTimelineRight: this.dimensions.width - this.padding.outerPaddingWidth,
-   				   yTimelineTop: this.padding.outerPaddingHeight,
-   				   yTimelineBottom: this.dimensions.height - (this.padding.outerPaddingHeight + this.padding.labelHeight + this.padding.tickToLabelHeight + this.padding.tickHeight) };
+   				     xTimelineRight: this.dimensions.width - this.padding.outerPaddingWidth,
+   				     yTimelineTop: this.padding.outerPaddingHeight,
+   				     yTimelineBottom: this.dimensions.height - (this.padding.outerPaddingHeight + this.padding.labelHeight + this.padding.tickToLabelHeight + this.padding.tickHeight) };
 
 	this.countryOffsets = {};
+	
+	//document.getElementById("chronologyPanel").style.width = this.dimensions.width;
 
 	var cnames = dataset.indexRegistry.ADM_LEVEL_1_BY_COUNTRY.getValues().sort();
 	var onlyForCountry = cnames.filter(function(ca) { return ca.split("|")[0] === country; });
@@ -886,7 +859,7 @@ function Timelines(parentElement, startDate, endDate, country) {
 
 	this.chart = d3.select("#timelinesPanel").append("svg")
 					.attr("class", "chart")
-					.attr("width", 555) //this.dimensions.width)
+					.attr("width", this.dimensions.width) //this.dimensions.width)
 					.attr("height", totalHeight);
 
 	var splitCnames = cnames.map(function(s) { return s.split('|'); });
@@ -909,12 +882,13 @@ function Timelines(parentElement, startDate, endDate, country) {
 
 	this.axisBox = d3.select("#timelinesAxis").append("svg")
 					//.attr("class", "chart")
-					.attr("width", 555) //this.dimensions.width)
-					.attr("height", 30);
+					.attr("left", self.corners.xTimelineRight)
+					.attr("width", self.dimensions.width) //self.corners.xTimelineRight - self.corners.xTimelineLeft)
+					.attr("height", 55);
 
 	this.tl = this.axisBox.append("g")
 		.attr("class", "axis")
-		.attr("transform", "translate(0,25)") //+ (maxOffset + this.corners.yTimelineBottom) + ")")
+		.attr("transform", "translate(0,45)") //+ (maxOffset + this.corners.yTimelineBottom) + ")")
 		.style("font-size", this.padding.labelHeight)
 		.style("font-family", "sans-serif");
 
@@ -939,7 +913,7 @@ Timelines.prototype.redraw = function(resultArr) {
 	var xScale = (function() {
 		return d3.time.scale()
 				.domain([startDate, endDate])
-	    		.range([self.corners.xTimelineLeft, 555])
+	    		.range([self.corners.xTimelineLeft, self.corners.xTimelineRight])
 				.clamp(true);
 	})();
 
@@ -959,7 +933,7 @@ Timelines.prototype.redraw = function(resultArr) {
 	cs.enter().insert("circle")
 		.attr("cx", function(d, i) { return xScale(dateFormat.parse(d.EVENT_DATE).getTime()); })
 		.attr("cy", function(d) { return self.countryOffsets[d.COUNTRY+'|'+d.ADM_LEVEL_1] + self.corners.yTimelineBottom - self.padding.axisToIncidentsHeight; })
-		.attr("r", function(d) { return fatalitySizing ? Math.log(d.FATALITIES)*2 + 2 : 3; })
+		.attr("r", function(d) { return fatalitySizing ? Math.log(+d.FATALITIES+1)*2 + 2 : 3; })
 		.attr("fill", function(d) { return p.getColor(d.EVENT_TYPE); })
 		.append("title").text(function(d) { return d.CONSOLIDATED_NOTES; });
 
@@ -976,7 +950,7 @@ Timelines.prototype.redraw = function(resultArr) {
 Timelines.prototype.redrawCompletely = function() {
 
 	this.chart.selectAll("circle")
-		.attr("r", function(o) { return fatalitySizing ? Math.log(+o.FATALITIES + 2) + 2 : 3; });
+		.attr("r", function(o) { return fatalitySizing ? Math.log(+o.FATALITIES+1)*2 + 2 : 3; });
 /*
 	var cs = document.getElementById("circleGroup").childNodes;
 	for(var i = 0, n = cs.length; i < n; i++) {
@@ -1002,6 +976,7 @@ function Table(parentElement, country) {
 	
 	this.tableContainer = document.createElement("div");
 	this.tableContainer.setAttribute("id", "tableContainer");
+	this.tableContainer.style.width = window.innerWidth - 460;
 	document.getElementById(this.parentElement).appendChild(this.tableContainer);
 }
 
@@ -1063,6 +1038,358 @@ function makeNewDiv(o) {
 	return newDiv;
 }
 
+//InteractionsTable.js
+
+function InteractionsTable(parentElement, country) {
+
+	//tab must be visible for svg to render and getBBox() work
+	$('a[href="#interactions"]').tab('show');
+
+
+	var actor1 = {},
+		actor2 = {},
+		dyadicPairs = {};
+
+	for(var i = 0, n = dataset.completeDataArray.length; i < n; i++) {
+		if(dataset.completeDataArray[i].COUNTRY === country) {
+
+/*
+    <foreignObject width="200" height="200" 
+     requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+      <p xmlns="http://www.w3.org/1999/xhtml">Text goes here</p>
+    </foreignObject>
+*/
+
+			var joinedPair = [dataset.completeDataArray[i].ACTOR1, dataset.completeDataArray[i].ACTOR2].join('|');
+
+			dyadicPairs[joinedPair] = 
+				dyadicPairs[joinedPair] 
+					? dyadicPairs[joinedPair] + 1 
+					: 1;
+
+			actor1[dataset.completeDataArray[i].ACTOR1] = true;
+			actor2[dataset.completeDataArray[i].ACTOR2] = true;
+
+		}
+	}
+
+	var maxIncidentCount = 0;
+	for(var v in dyadicPairs) {
+		if(dyadicPairs[v] > maxIncidentCount) {
+			maxIncidentCount = dyadicPairs[v];
+		}
+	}
+
+	var actor1Keys = Object.keys(actor1).sort(),
+		actor2Keys = Object.keys(actor2).sort();
+
+	this.tester = d3.select(parentElement).append("svg")
+					.attr("width", 500)
+					.attr("height", 20);
+
+	this.tester.selectAll("text")
+			.data(actor1Keys)
+		.enter()
+			.append("text")
+			.text(function(d) { return d; })
+			.attr("x", 0)
+			.attr("y", 20)
+			.attr("font-size", 10)
+			.attr("font-family", "sans-serif")
+			.attr("font-weight", "bold");
+
+	var maxTextWidthActor1 = 0;
+	this.tester.selectAll("text").each(function() {
+		if(this.getBBox().width >  maxTextWidthActor1) maxTextWidthActor1 = this.getBBox().width;
+	});
+
+	this.tester.remove();
+
+	this.tester = d3.select(parentElement).append("svg")
+					.attr("width", 500)
+					.attr("height", 20);
+
+	this.tester.selectAll("text")
+			.data(actor2Keys)
+		.enter()
+			.append("text")
+			.text(function(d) { return d === "" ? "None" : d; })  //is this working?
+			.attr("x", 0)
+			.attr("y", 20)
+			.attr("font-size", 10)
+			.attr("font-family", "sans-serif")
+			.attr("font-weight", "bold");
+
+	var maxTextWidthActor2 = 0;
+	this.tester.selectAll("text").each(function() {
+		if(this.getBBox().width >  maxTextWidthActor2) maxTextWidthActor2 = this.getBBox().width;
+	});
+
+	this.tester.remove();
+
+
+
+	this.gap = 20;
+
+	this.table = d3.select(parentElement).append("svg")
+					.attr("width", maxTextWidthActor2 + 20 + this.gap + (actor2Keys.length + 1) * this.gap)
+					.attr("height", maxTextWidthActor1 + 20 + this.gap + (actor1Keys.length + 1) * this.gap);
+
+	this.actor1Scale = d3.scale.ordinal()
+							.domain(actor1Keys)
+							.rangePoints([maxTextWidthActor2 + 20 + this.gap, maxTextWidthActor1 + 20 + actor1Keys.length * this.gap]);
+
+	this.actor2Scale = d3.scale.ordinal()
+						.domain(actor2Keys)
+						.rangePoints([maxTextWidthActor1 + 20, maxTextWidthActor1 + 20 + actor2Keys.length * this.gap]);
+
+	this.incidentCountScale = d3.scale.linear().domain([0, Math.log(maxIncidentCount + 1) * 2]).range(["white", "red"]);
+
+	var self = this;
+
+
+	//.attr("text-anchor", "middle")
+	this.table.selectAll(".rowHeads")
+			.data(actor1Keys)
+		.enter()
+			.append("text")
+			.text(function(d) { return d; })
+			.attr("x", maxTextWidthActor1)
+			.attr("y", function(d) { return self.actor1Scale(d); })
+			.attr("text-anchor", "end")
+			.attr("font-size", 10)
+			.attr("font-family", "sans-serif")
+			.attr("font-weight", "bold");
+
+	this.table.selectAll(".columnHeads")
+			.data(actor2Keys)
+		.enter()
+			.append("text")
+			.text(function(d) { return d; })
+			//.attr("x", function(d) { return self.actor2Scale(d); })
+			//.attr("y", maxTextWidthActor2)
+			.attr("text-anchor", "end")
+			.attr("font-size", 10)
+			.attr("font-family", "sans-serif")
+			.attr("font-weight", "bold")
+			.attr("transform", function(d) { return "translate(" + self.actor2Scale(d) + "," + maxTextWidthActor2 + ")rotate(90)"; });
+
+/*
+	var maxTextWidth = 0;
+	this.table.selectAll("text").each(function() {
+		if(this.getBBox().width >  maxTextWidth) maxTextWidth = this.getBBox().width;
+	});
+
+*/
+
+
+
+/*	this.table.selectAll("circle")
+			.data(actor1Keys)
+				.enter().insert("circle")
+				.attr("cx", 5)
+				.attr("cy", function(d) { return self.actor1Scale(d); })
+				.attr("r", 4)
+				.attr("fill", "#fgabfg");
+
+	this.table.selectAll("circle")
+			.data(actor2Keys)
+				.enter().insert("circle")
+				.attr("cx", function(d) { return self.actor2Scale(d); })
+				.attr("cy", 5)
+				.attr("r", 4)
+				.attr("fill", "#fgabfg");
+*/
+/*
+    <foreignObject width="200" height="200" 
+     requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+      <p xmlns="http://www.w3.org/1999/xhtml">Text goes here</p>
+    </foreignObject>
+*/
+
+//		.append("title").text(function(d) { return d.CONSOLIDATED_NOTES; });
+
+	//console.log(dyadicPairs);
+
+}
+
+InteractionsTable.prototype.redraw = function(resultArr, country) {
+
+	var dyadicPairs = {};
+
+	for(var i = 0, n = resultArr.length; i < n; i++) {
+		if(resultArr[i].COUNTRY === country) {
+
+			var joinedPair = [resultArr[i].ACTOR1, resultArr[i].ACTOR2].join('|');
+
+			dyadicPairs[joinedPair] = 
+				dyadicPairs[joinedPair] 
+					? dyadicPairs[joinedPair] + 1 
+					: 1;
+		}
+	}
+
+	var self = this;
+
+	var rs = this.table.selectAll("rect")
+			.data(d3.entries(dyadicPairs), function(d) { return d.key; });
+
+	rs.enter().insert("rect")
+			.attr("x", function(d) { return self.actor2Scale(d.key.split('|')[1]); })
+			.attr("y", function(d) { return self.actor1Scale(d.key.split('|')[0]); })
+			.attr("width", self.gap)
+			.attr("height", self.gap)
+			.attr("fill", function(d) { return self.incidentCountScale(Math.log(d.value + 1) * 2); });
+
+	rs.attr("fill", function(d) { return self.incidentCountScale(Math.log(d.value + 1) * 2); });
+
+	rs.exit().remove();
+
+}
+
+InteractionsTable.prototype.destruct = function() {
+	this.table.remove();
+}
+//GraphView.js
+
+function GraphView(parentElement, country) {
+
+	this.width = window.innerWidth - 400;
+	this.height = 1000;
+
+	this.svg = d3.select(parentElement).append("svg")
+					.attr("width", this.width)
+					.attr("height", this.height);
+
+
+}
+
+//why pass this country instead of it using this.country?
+GraphView.prototype.redraw = function(resultArr, country) {
+
+	var dyadicPairs = {},
+		nodeList = {},
+		linkList = [];
+
+	for(var i = 0, n = dataset.completeDataArray.length; i < n; i++) {
+		if(dataset.completeDataArray[i].COUNTRY === country) {
+
+			var joinedPair = [dataset.completeDataArray[i].ACTOR1, dataset.completeDataArray[i].ACTOR2].join('|');
+
+			dyadicPairs[joinedPair] = 
+				dyadicPairs[joinedPair] 
+					? dyadicPairs[joinedPair] + 1 
+					: 1;
+
+			nodeList[dataset.completeDataArray[i].ACTOR1] = true;
+			nodeList[dataset.completeDataArray[i].ACTOR2] = true;
+		}
+	}
+
+	nodeToIndex = {};
+	nodeList = Object.keys(nodeList).map(function(n,i) { 
+		nodeToIndex[n] = i; 
+		return {"name": n};
+	});
+
+	console.log(dyadicPairs);
+	for(var v in dyadicPairs) {
+		var splitPair = v.split('|');
+		linkList.push({"source":nodeToIndex[splitPair[0]],"target":nodeToIndex[splitPair[1]],"value":dyadicPairs[v]});
+	}
+
+	var force = d3.layout.force()
+	    .nodes(nodeList)
+	    .links(linkList)
+	    .size([this.width, this.height])
+	    .gravity(0)
+	    .linkDistance(350)
+	    .charge(-350)
+	    .on("tick", tick)
+	    .start();
+
+/*
+// Per-type markers, as they don't inherit styles.
+svg.append("svg:defs").selectAll("marker")
+    .data(["suit", "licensing", "resolved"])
+  .enter().append("svg:marker")
+    .attr("id", String)
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 15)
+    .attr("refY", -1.5)
+    .attr("markerWidth", 6)
+    .attr("markerHeight", 6)
+    .attr("orient", "auto")
+  .append("svg:path")
+    .attr("d", "M0,-5L10,0L0,5");
+*/
+
+
+var path = this.svg.append("svg:g").selectAll("path")
+    .data(force.links())
+  .enter().append("svg:path")
+	.attr("class", "link")
+	.attr("stroke-width", function(d) { return Math.log(d.value + 1); }); //function(d) { return "link " + d.type; });
+//    .attr("marker-end", function(d) { return "url(#" + d.type + ")"; });
+
+
+var circle = this.svg.append("svg:g").selectAll("circle")
+    .data(force.nodes())
+  .enter().append("svg:circle")
+    .attr("r", 6)
+    .call(force.drag);
+
+
+var text = this.svg.append("svg:g").selectAll("g")
+    .data(force.nodes())
+  .enter().append("svg:g");
+
+/*
+// A copy of the text with a thick white stroke for legibility.
+text.append("svg:text")
+    .attr("x", 8)
+    .attr("y", ".31em")
+    .attr("class", "shadow")
+    .text(function(d) { return d.name; });
+*/
+
+text.append("svg:text")
+    .attr("x", 8)
+    .attr("y", ".31em")
+    .text(function(d) { return d.name.slice(0,10); });
+
+function tick() {
+	path.attr("d", function(d) {
+	    return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
+	});
+
+    circle.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+    text.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+}
+
+/*
+	  path.attr("d", function(d) {
+	    var dx = d.target.x - d.source.x,
+	        dy = d.target.y - d.source.y,
+	        dr = Math.sqrt(dx * dx + dy * dy);
+	    return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+	  });
+
+	  circle.attr("transform", function(d) {
+	    return "translate(" + d.x + "," + d.y + ")";
+	  });
+
+	  text.attr("transform", function(d) {
+	    return "translate(" + d.x + "," + d.y + ")";
+	  });
+*/
+
+}
+
+GraphView.prototype.destruct = function() {
+	this.svg.remove();
+}
 //Controls.js
 
 //need to get date handling under control
@@ -1082,7 +1409,7 @@ function Controls(queryTemplate, country) {
 
 	//has devolved into magic numbers at this point
 	//currently duplicated in Controls.js
-	this.dimensions = { width: 700, height: 40 };  //height=40 was for rendering each separately
+	this.dimensions = { width: window.innerWidth - 400, height: 40 };  //height=40 was for rendering each separately
 	this.padding = { outerPaddingWidth: 5, placenameWidth: 70, innerPaddingWidth: 5,
    				   outerPaddingHeight: 2, labelHeight: 10, tickToLabelHeight: 3, tickHeight: 5, 
    				   axisToIncidentsHeight: 5 };
@@ -1123,6 +1450,8 @@ function Controls(queryTemplate, country) {
 	    .selectAll("rect")
 	      .attr("y", 1)
 	      .attr("height", 18);
+
+	document.getElementById("dateSelector").style.width = this.corners.xTimelineRight - this.corners.xTimelineLeft - this.padding.placenameWidth + 10;
 
 	//not really so great that this calls dataset by name
 	function makeCheckBoxes(idName, fieldName) {
@@ -1250,10 +1579,12 @@ function removeToInsertLater(element) {
   $(function () {
     $('#m a[href="#map"]').tab('show');
   });
+ /*
 $('a[data-toggle="tab"]').on('shown', function (e) {
   selectedTab = e.target.attributes.href.value;
   redrawOnTabSwitch();
 });
+*/
 </script>
 
 </body>

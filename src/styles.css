@@ -1,5 +1,9 @@
 <style type="text/css">
 
+body {
+    background-color: #FCFCFC;
+}
+
 #forTheMap {
     z-index: -10;
     left: 0px;
@@ -46,23 +50,29 @@
 #dateSelector {
     position: fixed;
     display: inline-block;
+    left: 460px;
+    top: 60px;
     background-color: rgb(242, 242, 242);
     opacity:0.9;
-    padding: 5px;
+    padding: 10px;
     border-color: rgb(212, 212, 212);
     box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0.9090908765792847px 10px 0px;
     color: rgb(51, 51, 51);
     opacity: 0.9;
-    width: 555px;
+    /* width: 555px; */
     z-index: 5;
 }
 
 #sidebarControls {
+    float: left;
+    left: 40px;
+    top: 60px;
+    width: 300px;
     position:fixed;
     z-index: 5;
     background-color: rgb(242, 242, 242);
     opacity:0.9;
-    padding: 5px;
+    padding: 20px;
     border-color: rgb(212, 212, 212);
     box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0.9090908765792847px 10px 0px;
     color: rgb(51, 51, 51);
@@ -70,21 +80,36 @@
 
 #timelinesAxis {
     position: fixed;
+    /* left: 380px; */
+    left: 380px;
+    /* top: 50px; */
+    /*
     background-color: rgb(242, 242, 242);
     opacity:0.9;
     padding: 5px;
     border-color: rgb(212, 212, 212);
     box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0.9090908765792847px 10px 0px;
     color: rgb(51, 51, 51);
+    */
     z-index: 4;
 }
 
 
-#mapTable, #timelinesPanel, #chronologyPanel, #timelinesAxis {
+#mapTable, #timelinesAxis {
     padding-top: 50px;
 }
 
+#timelinesPanel {
+    left: 380px;
+    top: 130px;
+    position:absolute;
+}
 
+#chronologyPanel, #interactionsPanel {
+    left: 420px;
+    top: 130px;
+    position:absolute;
+}
 
 .selectBox {
 	fill: none;
@@ -178,12 +203,12 @@ circle {
 
 #chronology {
     margin-left: 10px;
-    width: 545px;
+    /* width: 545px; */
 }
 
 .chronology-item {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   margin-bottom: 12px;
   line-height: 120%;
 }
@@ -203,5 +228,12 @@ circle {
 #circleGroup {
     fill: none;
 }
+
+path.link {
+  fill: none;
+  stroke: #666;
+  /* stroke-width: 1.5px; */
+}
+
 
 </style>
