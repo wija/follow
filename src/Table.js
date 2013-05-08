@@ -51,7 +51,7 @@ function makeNewDiv(o) {
 	var newDiv = document.createElement("div");
 	newDiv.setAttribute("id", o.MY_EVENT_ID);
 	newDiv.setAttribute("data-milliseconds", new Date(o.EVENT_DATE).getTime());
-	if(o.COUNTRY === this.country) {
+	if(o.COUNTRY.replace(/ /g, '_') === this.country) {
 		newDiv.setAttribute("class", "chronology-item current-country-item");
  	} else {
 		newDiv.setAttribute("class", "chronology-item");
