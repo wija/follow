@@ -1,5 +1,3 @@
-<script type="text/javascript">
-
 p = new Palette();
 dateFormat = d3.time.format("%x");
 
