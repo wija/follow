@@ -4,6 +4,14 @@ function Timelines(parentElement, startDate, endDate, country) {
 
 	this.cachedResultArr = [];
 
+	this.axisElement = document.createElement("div");
+	this.axisElement.setAttribute("id", "timelinesAxis");
+	document.getElementById(parentElement).appendChild(this.axisElement);
+
+	this.panelElement = document.createElement("div");
+	this.panelElement.setAttribute("id", "timelinesPanel");
+	document.getElementById(parentElement).appendChild(this.panelElement);
+
 	//has devolved into magic numbers at this point
 	//currently duplicated in Controls.js
 	this.dimensions = { width: window.innerWidth - 400, height: 40 };  //height=40 was for rendering each separately
@@ -36,7 +44,7 @@ function Timelines(parentElement, startDate, endDate, country) {
 	            	  .clamp(true);
 	})();
 
-	this.chart = d3.select("#timelinesPanel").append("svg")
+	this.chart = d3.select(this.panelElement).append("svg")
 					.attr("class", "chart")
 					.attr("width", this.dimensions.width) //this.dimensions.width)
 					.attr("height", totalHeight);
@@ -59,7 +67,7 @@ function Timelines(parentElement, startDate, endDate, country) {
 			.attr("font-family", "sans-serif");
     }
 
-	this.axisBox = d3.select("#timelinesAxis").append("svg")
+	this.axisBox = d3.select(this.axisElement).append("svg")
 					//.attr("class", "chart")
 					.attr("left", self.corners.xTimelineRight)
 					.attr("width", self.dimensions.width) //self.corners.xTimelineRight - self.corners.xTimelineLeft)
@@ -132,8 +140,8 @@ Timelines.prototype.redrawCompletely = function() {
 }
 
 Timelines.prototype.destruct = function() {
-	this.chart.remove();
-	this.axisBox.remove();
+	this.axisElement.remove();
+	this.panelElement.remove();
 }
 
 

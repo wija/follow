@@ -4,7 +4,7 @@ body {
     background-color: #FCFCFC;
 }
 
-#forTheMap {
+#mapContainer {
     z-index: -10;
     left: 0px;
     top: 0px;
@@ -95,7 +95,7 @@ body {
 }
 
 
-#mapTable, #timelinesAxis {
+#timelinesAxis {
     padding-top: 50px;
 }
 
@@ -105,7 +105,7 @@ body {
     position:absolute;
 }
 
-#chronologyPanel, #interactionsPanel {
+#chronologyContainer, #interactionsPanel {
     left: 420px;
     top: 130px;
     position:absolute;

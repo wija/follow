@@ -1,15 +1,7 @@
 //loadDataset.js
 
 //dataset left global for now
-/*
-qtCallback =
-function(resultArr) { 
-				renderResults("dataTable", resultArr);
-			}
 
-callback = createInterface();
-		   drawMap(country);
-*/
 function loadDataset(country, mapHeight, mapWidth, qtCallback, callback) {
 
 	var jsonArray,

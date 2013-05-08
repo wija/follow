@@ -10,15 +10,7 @@ function Map(country, mapWidth, mapHeight, parentElement, callback) {
 	this.cachedResultArr = [];
 
 	var filename = country + ".json";
-	/*var filename;
-	if(country === "Democratic_Republic_of_the_Congo") {
-		filename = "Congo.json"; 
-	} else if(country === "Republic_of_Congo") {
-		filename = "Republic_of_the_Congo.json";
-	} else {
-		filename = country + ".json"; 
-	}
-*/
+
 	var self = this;
 
 
@@ -56,9 +48,10 @@ function Map(country, mapWidth, mapHeight, parentElement, callback) {
 			.scale(s)
 		    .translate(t);
 
-		self.svgMap = d3.select(parentElement).append("svg")
+		self.svgMap = d3.select('#' + parentElement).append("svg")
 		    .attr("width", width)
-		    .attr("height", height);
+		    .attr("height", height)
+		    .attr("id", "mapContainer");
 
 		self.svgMap.selectAll(".subunit")
 			.data(subunits.geometries)

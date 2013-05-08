@@ -77,13 +77,13 @@ function loadNewCountry(country) {
 				function() {
 					map = new Map(country, 
 								  mapWidth, mapHeight, 
-								  "#forTheMap", 
+								  "map", 
 								  function() {
-								  		timelines = new Timelines("#dataTable", 
+								  		timelines = new Timelines("timelines", 
 								  								  new Date("1/1/1997"), 
 								  								  new Date("2/28/2013"),
 								  								  country);
-								  		table = new Table("chronologyPanel", country);
+								  		table = new Table("chronology", country);
 								  		//interactionsTable = new InteractionsTable("#interactionsPanel", country);
 										//graphView = new GraphView("#interactionsPanel", country);
 										controls = new Controls(ps, country);

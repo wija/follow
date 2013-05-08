@@ -8,7 +8,7 @@ function Table(parentElement, country) {
 	this.cachedResultArr = [];
 	
 	this.tableContainer = document.createElement("div");
-	this.tableContainer.setAttribute("id", "tableContainer");
+	this.tableContainer.setAttribute("id", "chronologyContainer");
 	this.tableContainer.style.width = window.innerWidth - 460;
 	document.getElementById(this.parentElement).appendChild(this.tableContainer);
 }
