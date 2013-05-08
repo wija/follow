@@ -9,7 +9,8 @@ function Map(country, mapWidth, mapHeight, parentElement, callback) {
 
 	this.cachedResultArr = [];
 
-	var filename;
+	var filename = country + ".json";
+	/*var filename;
 	if(country === "Democratic_Republic_of_the_Congo") {
 		filename = "Congo.json"; 
 	} else if(country === "Republic_of_Congo") {
@@ -17,7 +18,7 @@ function Map(country, mapWidth, mapHeight, parentElement, callback) {
 	} else {
 		filename = country + ".json"; 
 	}
-
+*/
 	var self = this;
 
 

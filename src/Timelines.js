@@ -1,16 +1,5 @@
 //Timelines.js
 
-/*
-constructor:
-parentElement = "#dataTable"
-startDate = new Date("1/1/1997")
-endDate = new Date("2/28/2013")
-
-draw:
-startDate, endDate  remain global?????
-*/
-
-
 function Timelines(parentElement, startDate, endDate, country) {
 
 	this.cachedResultArr = [];
@@ -28,11 +17,9 @@ function Timelines(parentElement, startDate, endDate, country) {
 
 	this.countryOffsets = {};
 	
-	//document.getElementById("chronologyPanel").style.width = this.dimensions.width;
-
 	var cnames = dataset.indexRegistry.ADM_LEVEL_1_BY_COUNTRY.getValues().sort();
-	var onlyForCountry = cnames.filter(function(ca) { return ca.split("|")[0] === country; });
-	var withoutCountry = cnames.filter(function(ca) { return ca.split("|")[0] !== country; });
+	var onlyForCountry = cnames.filter(function(ca) { return ca.split("|")[0].replace(/ /g, '_') === country; });
+	var withoutCountry = cnames.filter(function(ca) { return ca.split("|")[0].replace(/ /g, '_') !== country; });
 	cnames = onlyForCountry.concat(withoutCountry);
 	for(var i = 0, n = cnames.length; i < n; i++) {
 		this.countryOffsets[cnames[i]] = 20 + i * this.dimensions.height;
@@ -140,15 +127,8 @@ Timelines.prototype.redraw = function(resultArr) {
 }
 
 Timelines.prototype.redrawCompletely = function() {
-
 	this.chart.selectAll("circle")
 		.attr("r", function(o) { return fatalitySizing ? Math.log(+o.FATALITIES+1)*2 + 2 : 3; });
-/*
-	var cs = document.getElementById("circleGroup").childNodes;
-	for(var i = 0, n = cs.length; i < n; i++) {
-		cs[i].setAttribute("r", fatalitySizing ? Math.log(+cs[i].attr("data-fatalities") + 2) + 2 : 3);
-	}
-*/
 }
 
 Timelines.prototype.destruct = function() {
