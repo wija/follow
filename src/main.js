@@ -1,11 +1,5 @@
-<script type="text/javascript">
-
 p = new Palette();
 dateFormat = d3.time.format("%x");
-
-//was 700x420
-mapWidth = window.innerWidth + 150;
-mapHeight = mapWidth * 0.6;
 
 startDate = null;
 endDate = null;
@@ -58,7 +52,6 @@ function redrawOnTabSwitch(country) {
 }
 
 firstTime = true;
-loadNewCountry("Algeria");
 
 function loadNewCountry(country) {
 	
@@ -71,36 +64,45 @@ function loadNewCountry(country) {
 		//graphView.destruct();
 	}
 
-	loadDataset(country, 
-				mapHeight, mapWidth, 
-				redraw.bind(null, country),
-				function() {
-					map = new Map(country, 
-								  mapWidth, mapHeight, 
-								  "#forTheMap", 
-								  function() {
-								  		timelines = new Timelines("#dataTable", 
-								  								  new Date("1/1/1997"), 
-								  								  new Date("2/28/2013"),
-								  								  country);
-								  		table = new Table("chronologyPanel", country);
-								  		//interactionsTable = new InteractionsTable("#interactionsPanel", country);
-										//graphView = new GraphView("#interactionsPanel", country);
-										controls = new Controls(ps, country);
-										controls.attachEventHandlers();
-										if(firstTime) {
-											//this is broken for some reason, so inserted directly into
-											//the html
-											//makeCountryList("countrySelector");
-											firstTime = false;
-										}
-										$('a[data-toggle="tab"]').on('shown', function (e) {
-  											selectedTab = e.target.attributes.href.value;
-  											redrawOnTabSwitch(country);
-										});
-										$('#load-data').modal('hide');
+	loadDataset(country, redraw.bind(null, country))
+		.done(function() {
 
-								  });
+				var mapPromise = new Map(country, "map");
+				
+				mapPromise.done(function(mapObj) {
+						map = mapObj;
 				});
+				
+				timelines = new Timelines("timelines", 
+							  			  new Date("1/1/1997"), 
+							  			  new Date("2/28/2013"),
+							  			  country);
 
+		  		table = new Table("chronology", country);
+
+		  		//interactionsTable = new InteractionsTable("#interactionsPanel", country);
+				//graphView = new GraphView("#interactionsPanel", country);
+				
+				controls = new Controls(ps, country);
+
+				$.when(mapPromise).done(function() {
+				
+					if(firstTime) {
+						makeCountryList("countrySelector");
+					}
+
+					controls.attachEventHandlers();
+
+					$('a[data-toggle="tab"]').on('shown', function (e) {
+							selectedTab = e.target.attributes.href.value;
+							redrawOnTabSwitch(country);
+					});
+
+					if(!firstTime) {
+						$('#load-data').modal('hide');
+					}
+
+					firstTime = false;
+				});
+	  	});
 }
