@@ -69,36 +69,41 @@ function loadNewCountry(country) {
 		//graphView.destruct();
 	}
 
-	loadDataset(country, 
-				mapHeight, mapWidth, 
-				redraw.bind(null, country),
-				function() {
-					map = new Map(country, 
-								  mapWidth, mapHeight, 
-								  "map", 
-								  function() {
-								  		timelines = new Timelines("timelines", 
-								  								  new Date("1/1/1997"), 
-								  								  new Date("2/28/2013"),
-								  								  country);
-								  		table = new Table("chronology", country);
-								  		//interactionsTable = new InteractionsTable("#interactionsPanel", country);
-										//graphView = new GraphView("#interactionsPanel", country);
-										controls = new Controls(ps, country);
-										controls.attachEventHandlers();
-										if(firstTime) {
-											//this is broken for some reason, so inserted directly into
-											//the html
-											//makeCountryList("countrySelector");
-											firstTime = false;
-										}
-										$('a[data-toggle="tab"]').on('shown', function (e) {
-  											selectedTab = e.target.attributes.href.value;
-  											redrawOnTabSwitch(country);
-										});
-										$('#load-data').modal('hide');
+	loadDataset(country, redraw.bind(null, country))
+		.done(function() {
 
-								  });
+				var mapPromise = new Map(country, "map");
+				
+				mapPromise.done(function(mapObj) {
+						map = mapObj;
 				});
+				
+				timelines = new Timelines("timelines", 
+							  			  new Date("1/1/1997"), 
+							  			  new Date("2/28/2013"),
+							  			  country);
 
+		  		table = new Table("chronology", country);
+
+		  		//interactionsTable = new InteractionsTable("#interactionsPanel", country);
+				//graphView = new GraphView("#interactionsPanel", country);
+				
+				controls = new Controls(ps, country);
+
+				$.when(mapPromise).done(function() {
+				
+					controls.attachEventHandlers();
+					if(firstTime) {
+						//this is broken for some reason, so inserted directly into
+						//the html
+						//makeCountryList("countrySelector");
+						firstTime = false;
+					}
+					$('a[data-toggle="tab"]').on('shown', function (e) {
+							selectedTab = e.target.attributes.href.value;
+							redrawOnTabSwitch(country);
+					});
+					$('#load-data').modal('hide');
+				});
+	  	});
 }
