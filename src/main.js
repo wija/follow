@@ -1,10 +1,6 @@
 p = new Palette();
 dateFormat = d3.time.format("%x");
 
-//was 700x420
-mapWidth = window.innerWidth + 150;
-mapHeight = mapWidth * 0.6;
-
 startDate = null;
 endDate = null;
 
@@ -56,7 +52,6 @@ function redrawOnTabSwitch(country) {
 }
 
 firstTime = true;
-loadNewCountry("Algeria");
 
 function loadNewCountry(country) {
 	
@@ -92,18 +87,22 @@ function loadNewCountry(country) {
 
 				$.when(mapPromise).done(function() {
 				
-					controls.attachEventHandlers();
 					if(firstTime) {
-						//this is broken for some reason, so inserted directly into
-						//the html
-						//makeCountryList("countrySelector");
-						firstTime = false;
+						makeCountryList("countrySelector");
 					}
+
+					controls.attachEventHandlers();
+
 					$('a[data-toggle="tab"]').on('shown', function (e) {
 							selectedTab = e.target.attributes.href.value;
 							redrawOnTabSwitch(country);
 					});
-					$('#load-data').modal('hide');
+
+					if(!firstTime) {
+						$('#load-data').modal('hide');
+					}
+
+					firstTime = false;
 				});
 	  	});
 }
