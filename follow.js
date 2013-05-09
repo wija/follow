@@ -1,107 +1,3 @@
-p = new Palette();
-dateFormat = d3.time.format("%x");
-
-//was 700x420
-mapWidth = window.innerWidth + 150;
-mapHeight = mapWidth * 0.6;
-
-startDate = null;
-endDate = null;
-
-fatalitySizing = true;
-
-selectedTab = "#map";
-
-masterCachedResultArr = [];
-function redraw(country, resultArr) {
-	switch(selectedTab) {
-		case "#map":
-			map.redraw(resultArr);
-			break;
-		case "#timelines":
-			timelines.redraw(resultArr);
-			break;
-		case "#chronology":
-			table.redraw(resultArr);
-			break;
-		case "#interactions":
-			graphView.redraw(resultArr, country);
-			//interactionsTable.redraw(resultArr, country);	
-			break;
-		case "#country-selector":
-			break;
-	}
-
-	masterCachedResultArr = resultArr;
-}
-
-function redrawOnTabSwitch(country) {
-	switch(selectedTab) {
-		case "#map":
-			map.redraw(masterCachedResultArr);
-			break;
-		case "#timelines":
-			timelines.redraw(masterCachedResultArr);
-			break;
-		case "#chronology":
-			table.redraw(masterCachedResultArr);
-			break;
-		//case "#interactions":
-		//	graphView.redraw(masterCachedResultArr, country);
-			//interactionsTable.redraw(masterCachedResultArr, country);	
-			break;
-		case "#country-selector":
-			break;
-	}
-}
-
-firstTime = true;
-loadNewCountry("Algeria");
-
-function loadNewCountry(country) {
-	
-	if(!firstTime) {
-		controls.destruct();
-		timelines.destruct();
-		map.destruct();
-		table.destruct();
-		//interactionsTable.destruct();
-		//graphView.destruct();
-	}
-
-	loadDataset(country, 
-				mapHeight, mapWidth, 
-				redraw.bind(null, country),
-				function() {
-					map = new Map(country, 
-								  mapWidth, mapHeight, 
-								  "map", 
-								  function() {
-								  		timelines = new Timelines("timelines", 
-								  								  new Date("1/1/1997"), 
-								  								  new Date("2/28/2013"),
-								  								  country);
-								  		table = new Table("chronology", country);
-								  		//interactionsTable = new InteractionsTable("#interactionsPanel", country);
-										//graphView = new GraphView("#interactionsPanel", country);
-										controls = new Controls(ps, country);
-										controls.attachEventHandlers();
-										if(firstTime) {
-											//this is broken for some reason, so inserted directly into
-											//the html
-											//makeCountryList("countrySelector");
-											firstTime = false;
-										}
-										$('a[data-toggle="tab"]').on('shown', function (e) {
-  											selectedTab = e.target.attributes.href.value;
-  											redrawOnTabSwitch(country);
-										});
-										$('#load-data').modal('hide');
-
-								  });
-				});
-
-}
 //CountryList.js
 
 //parentElement = "countrySelector"
@@ -148,64 +44,66 @@ function getRadioButtonValueAndLoad() {
 
 //dataset left global for now
 
-function loadDataset(country, mapHeight, mapWidth, qtCallback, callback) {
+function loadDataset(country, qtCallback) {
 
-	var jsonArray,
-		jsonReady;
+	var deferred = $.Deferred();
 
-	$(window).unbind('JSONready');
+	var jsonArray;
 
-	$.getJSON('data/' + country + '.json', function(response) {
+	$.getJSON('data/' + country + '.json')
+		.done(function(jsonArray) {
 
-		/* hacky way to jitter the points because too much overlap due to imprecise coordinates */
-		var lonJitterBase = 0.01 * mapWidth,
-			latJitterBase = 0.01 * mapHeight;
-		for(var i = 0, n = response.length; i < n; i++) {
-				response[i].LATITUDE_JITTER = (Math.random() - 0.5) * latJitterBase;
-				response[i].LONGITUDE_JITTER = (Math.random() - 0.5) * lonJitterBase;
-		}
+			/* hacky way to jitter the points because too much overlap due to imprecise coordinates */
+			var lonJitterBase = 10, latJitterBase = 10;  //would ideally relate to display dimensions
+			for(var i = 0, n = jsonArray.length; i < n; i++) {
+					jsonArray[i].LATITUDE_JITTER = (Math.random() - 0.5) * latJitterBase;
+					jsonArray[i].LONGITUDE_JITTER = (Math.random() - 0.5) * lonJitterBase;
+			}
 
-   		jsonArray = response;
-   		$(window).trigger('JSONready');
-	});
+			return jsonArray;
+		})
+		.done(function(jsonArray) {
 
-	jsonReady = $(window).on('JSONready', function() {
+			dataset = new db.Collection();
 
-		dataset = new db.Collection();
+			dataset.loadData(
 
-		dataset.loadData(
+			  jsonArray,
 
-		  jsonArray,
+				  { FATALITIES:  		{ index: db.NumberIndex },
+				    COUNTRY:     		{ index: db.CategoryIndex },
+				    ADM_LEVEL_1_BY_COUNTRY: { index: db.CategoryIndex,
+				    					  	  opts: { keyExtractor: function(o) { return o.COUNTRY + '|' + o.ADM_LEVEL_1; }}}, 
+				    EVENT_DATE:  		{ index: db.DateIndex }, 
+				    EVENT_TYPE:  		{ index: db.CategoryIndex },
+				    CONSOLIDATED_NOTES: { index: db.TextIndex }});
 
-			  { FATALITIES:  		{ index: db.NumberIndex },
-			    COUNTRY:     		{ index: db.CategoryIndex },
-			    ADM_LEVEL_1_BY_COUNTRY: { index: db.CategoryIndex,
-			    					  	  opts: { keyExtractor: function(o) { return o.COUNTRY + '|' + o.ADM_LEVEL_1; }}}, 
-			    EVENT_DATE:  		{ index: db.DateIndex }, 
-			    EVENT_TYPE:  		{ index: db.CategoryIndex },
-			    CONSOLIDATED_NOTES: { index: db.TextIndex }});
+			ps = new db.QueryTemplate(
 
-		ps = new db.QueryTemplate(
+				dataset, 
 
-			dataset, 
+				db.qtIntersect(
+					db.qtField("EVENT_TYPE"), 
+					db.qtField("EVENT_DATE"),
+					db.qtField("CONSOLIDATED_NOTES")),
 
-			db.qtIntersect(
-				db.qtField("EVENT_TYPE"), 
-				db.qtField("EVENT_DATE"),
-				db.qtField("CONSOLIDATED_NOTES")),
+				qtCallback);
 
-			qtCallback);
+		})
+		.done(function() { 
+			deferred.resolve(); 
+		});
 
-		callback();
-	});
-}//Map.js
+	return deferred.promise();
+}
+//Map.js
 
 !function(scope) {
 
-function Map(country, mapWidth, mapHeight, parentElement, callback) {
+//returns a promise rather than a map object
+function Map(country, parentElement) {
 
-	this.mapWidth = mapWidth;
-	this.mapHeight = mapHeight;
+	var deferred = $.Deferred();
 
 	this.cachedResultArr = [];
 
@@ -213,108 +111,110 @@ function Map(country, mapWidth, mapHeight, parentElement, callback) {
 
 	var self = this;
 
+	$.getJSON("maps/" + filename)
+		.done(function(jsonMap) {
 
-	d3.json("maps/" + filename, function(error, jsonMap) {
+		 	var subunits = topojson.object(jsonMap, jsonMap.objects.subunits),
+		 		admin1 = topojson.object(jsonMap, jsonMap.objects.admin1),
+		    	places = topojson.object(jsonMap, jsonMap.objects.places),
+		   		rivers = topojson.object(jsonMap, jsonMap.objects.rivers),
+		   		oceans = topojson.object(jsonMap, jsonMap.objects.oceans),
+		   		urbanAreas = topojson.object(jsonMap, jsonMap.objects.urban);
 
-	 	var subunits = topojson.object(jsonMap, jsonMap.objects.subunits),
-	 		admin1 = topojson.object(jsonMap, jsonMap.objects.admin1),
-	    	places = topojson.object(jsonMap, jsonMap.objects.places),
-	   		rivers = topojson.object(jsonMap, jsonMap.objects.rivers),
-	   		oceans = topojson.object(jsonMap, jsonMap.objects.oceans),
-	   		urbanAreas = topojson.object(jsonMap, jsonMap.objects.urban);
+			/*
+				Re meaning of d3's scale and translate, in addition to the docs, see
+				http://stackoverflow.com/questions/14492284/center-a-map-in-d3-given-a-geojson-object
+				https://groups.google.com/forum/#!msg/d3-js/pvovPbU5tmo/NNVOC8cIPjUJ
+				http://bl.ocks.org/mbostock/4707858
+			*/
 
-		/*
-			Re meaning of d3's scale and translate, in addition to the docs, see
-			http://stackoverflow.com/questions/14492284/center-a-map-in-d3-given-a-geojson-object
-			https://groups.google.com/forum/#!msg/d3-js/pvovPbU5tmo/NNVOC8cIPjUJ
-			http://bl.ocks.org/mbostock/4707858
-		*/
+			self.projection = d3.geo.mercator()
+			      .scale(1)
+			      .translate([0, 0]);
 
+			var path = d3.geo.path()
+			    .projection(self.projection);
 
-		self.projection = d3.geo.mercator()
-		      .scale(1)
-		      .translate([0, 0]);
+			var width = window.innerWidth,
+			    b = path.bounds(subunits),
+			    s = 1 / ((b[1][0] - b[0][0]) / width),
+			    height = s * (b[1][1] - b[0][1]),
+			    t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
 
-		var path = d3.geo.path()
-		    .projection(self.projection);
+			self.projection
+				.scale(s)
+			    .translate(t);
 
-		var width = window.innerWidth,
-		    b = path.bounds(subunits),
-		    s = 1 / ((b[1][0] - b[0][0]) / width),
-		    height = s * (b[1][1] - b[0][1]),
-		    t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
+			self.svgMap = d3.select('#' + parentElement).append("svg")
+			    .attr("width", width)
+			    .attr("height", height)
+			    .attr("id", "mapContainer");
 
-		self.projection
-			.scale(s)
-		    .translate(t);
+			self.svgMap.selectAll(".subunit")
+				.data(subunits.geometries)
+			.enter().append("path")
+				.attr("class", function(d) { return "subunit " + d.id; })
+				.attr("d", path);
 
-		self.svgMap = d3.select('#' + parentElement).append("svg")
-		    .attr("width", width)
-		    .attr("height", height)
-		    .attr("id", "mapContainer");
+			self.svgMap.selectAll(".river")
+				.data(rivers.geometries)
+			.enter().append("path")
+				.attr("class", "river")
+				.attr("style", function(d) { return "stroke-width:" + (d.properties.strokeweig * 2.5);})
+				.attr("d", path);
 
-		self.svgMap.selectAll(".subunit")
-			.data(subunits.geometries)
-		.enter().append("path")
-			.attr("class", function(d) { return "subunit " + d.id; })
-			.attr("d", path);
+			self.svgMap.selectAll(".urbanArea")
+				.data(urbanAreas.geometries)
+			.enter().append("path")
+				.attr("class", "urban-area")
+			  	.attr("d", path);
 
-		self.svgMap.selectAll(".river")
-			.data(rivers.geometries)
-		.enter().append("path")
-			.attr("class", "river")
-			.attr("style", function(d) { return "stroke-width:" + (d.properties.strokeweig * 2.5);})
-			.attr("d", path);
+		  	//is this part necessary?
+		  	self.svgMap.append("path")
+		    	.datum(topojson.mesh(jsonMap, jsonMap.objects.urban, function(a, b) { return a !== b; }))
+		    	.attr("d", path)
+		    	.attr("class", "urban-area-boundary");
 
-		self.svgMap.selectAll(".urbanArea")
-			.data(urbanAreas.geometries)
-		.enter().append("path")
-			.attr("class", "urban-area")
-		  	.attr("d", path);
+			self.svgMap.append("path")
+				.datum(topojson.mesh(jsonMap, jsonMap.objects.subunits, function(a, b) { return a !== b; }))
+				.attr("d", path)
+				.attr("class", "subunit-boundary");
 
-	  	//is this part necessary?
-	  	self.svgMap.append("path")
-	    	.datum(topojson.mesh(jsonMap, jsonMap.objects.urban, function(a, b) { return a !== b; }))
-	    	.attr("d", path)
-	    	.attr("class", "urban-area-boundary");
+			self.svgMap.selectAll(".admin1subunit")
+				.data(admin1.geometries)
+			.enter().append("path")
+				.attr("class", function(d) { return "admin1subunit " + d.id; })
+				.attr("d", path);
 
-		self.svgMap.append("path")
-			.datum(topojson.mesh(jsonMap, jsonMap.objects.subunits, function(a, b) { return a !== b; }))
-			.attr("d", path)
-			.attr("class", "subunit-boundary");
+			self.svgMap.append("path")
+				.datum(topojson.mesh(jsonMap, jsonMap.objects.admin1, function(a, b) { return a !== b; }))
+				.attr("d", path)
+				.attr("class", "admin1-boundary");
 
-		self.svgMap.selectAll(".admin1subunit")
-			.data(admin1.geometries)
-		.enter().append("path")
-			.attr("class", function(d) { return "admin1subunit " + d.id; })
-			.attr("d", path);
+			self.svgMap.append("path")
+				.datum(places)
+				.attr("d", path)
+				.attr("class", "place");
 
-		self.svgMap.append("path")
-			.datum(topojson.mesh(jsonMap, jsonMap.objects.admin1, function(a, b) { return a !== b; }))
-			.attr("d", path)
-			.attr("class", "admin1-boundary");
+			self.svgMap.selectAll(".place-label")
+				.data(places.geometries)
+			.enter().append("text")
+				.attr("class", "place-label")
+				.attr("transform", function(d) { return "translate(" + self.projection(d.coordinates) + ")"; })
+				.attr("x", function(d) { return d.coordinates[0] > -1 ? 6 : -6; })
+				.attr("dy", ".35em")
+				.style("text-anchor", function(d) { return d.coordinates[0] > -1 ? "start" : "end"; })
+				.text(function(d) { return d.properties.name; });
 
-		self.svgMap.append("path")
-			.datum(places)
-			.attr("d", path)
-			.attr("class", "place");
+			self.svgMap.append("g")
+				.attr("id", "circleGroup");
 
-		self.svgMap.selectAll(".place-label")
-			.data(places.geometries)
-		.enter().append("text")
-			.attr("class", "place-label")
-			.attr("transform", function(d) { return "translate(" + self.projection(d.coordinates) + ")"; })
-			.attr("x", function(d) { return d.coordinates[0] > -1 ? 6 : -6; })
-			.attr("dy", ".35em")
-			.style("text-anchor", function(d) { return d.coordinates[0] > -1 ? "start" : "end"; })
-			.text(function(d) { return d.properties.name; });
+		})
+		.done(function() { 
+			deferred.resolve(self); 
+		});
 
-		self.svgMap.append("g")
-			.attr("id", "circleGroup");
-
-		callback();
-
-	});
+	return deferred.promise();
 }
 
 Map.prototype.redraw = function(resultArr) {
@@ -781,4 +681,113 @@ function removeToInsertLater(element) {
       		parentNode.appendChild(element);
     	}
   	};
+}
+p = new Palette();
+dateFormat = d3.time.format("%x");
+
+//was 700x420
+mapWidth = window.innerWidth + 150;
+mapHeight = mapWidth * 0.6;
+
+startDate = null;
+endDate = null;
+
+fatalitySizing = true;
+
+selectedTab = "#map";
+
+masterCachedResultArr = [];
+function redraw(country, resultArr) {
+	switch(selectedTab) {
+		case "#map":
+			map.redraw(resultArr);
+			break;
+		case "#timelines":
+			timelines.redraw(resultArr);
+			break;
+		case "#chronology":
+			table.redraw(resultArr);
+			break;
+		case "#interactions":
+			graphView.redraw(resultArr, country);
+			//interactionsTable.redraw(resultArr, country);	
+			break;
+		case "#country-selector":
+			break;
+	}
+
+	masterCachedResultArr = resultArr;
+}
+
+function redrawOnTabSwitch(country) {
+	switch(selectedTab) {
+		case "#map":
+			map.redraw(masterCachedResultArr);
+			break;
+		case "#timelines":
+			timelines.redraw(masterCachedResultArr);
+			break;
+		case "#chronology":
+			table.redraw(masterCachedResultArr);
+			break;
+		//case "#interactions":
+		//	graphView.redraw(masterCachedResultArr, country);
+			//interactionsTable.redraw(masterCachedResultArr, country);	
+			break;
+		case "#country-selector":
+			break;
+	}
+}
+
+firstTime = true;
+loadNewCountry("Algeria");
+
+function loadNewCountry(country) {
+	
+	if(!firstTime) {
+		controls.destruct();
+		timelines.destruct();
+		map.destruct();
+		table.destruct();
+		//interactionsTable.destruct();
+		//graphView.destruct();
+	}
+
+	loadDataset(country, redraw.bind(null, country))
+		.done(function() {
+
+				var mapPromise = new Map(country, "map");
+				
+				mapPromise.done(function(mapObj) {
+						map = mapObj;
+				});
+				
+				timelines = new Timelines("timelines", 
+							  			  new Date("1/1/1997"), 
+							  			  new Date("2/28/2013"),
+							  			  country);
+
+		  		table = new Table("chronology", country);
+
+		  		//interactionsTable = new InteractionsTable("#interactionsPanel", country);
+				//graphView = new GraphView("#interactionsPanel", country);
+				
+				controls = new Controls(ps, country);
+
+				$.when(mapPromise).done(function() {
+				
+					controls.attachEventHandlers();
+					if(firstTime) {
+						//this is broken for some reason, so inserted directly into
+						//the html
+						//makeCountryList("countrySelector");
+						firstTime = false;
+					}
+					$('a[data-toggle="tab"]').on('shown', function (e) {
+							selectedTab = e.target.attributes.href.value;
+							redrawOnTabSwitch(country);
+					});
+					$('#load-data').modal('hide');
+				});
+	  	});
 }
