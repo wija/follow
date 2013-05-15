@@ -9,46 +9,19 @@ fatalitySizing = true;
 selectedTab = "#map";
 
 masterCachedResultArr = [];
+
 function redraw(country, resultArr) {
-	switch(selectedTab) {
-		case "#map":
-			map.redraw(resultArr);
-			break;
-		case "#timelines":
-			timelines.redraw(resultArr);
-			break;
-		case "#chronology":
-			table.redraw(resultArr);
-			break;
-		case "#interactions":
-			graphView.redraw(resultArr, country);
-			//interactionsTable.redraw(resultArr, country);	
-			break;
-		case "#country-selector":
-			break;
-	}
+	
+	if(tabHash[selectedTab] && tabHash[selectedTab].redraw)
+		tabHash[selectedTab].redraw(resultArr);
 
 	masterCachedResultArr = resultArr;
 }
 
 function redrawOnTabSwitch(country) {
-	switch(selectedTab) {
-		case "#map":
-			map.redraw(masterCachedResultArr);
-			break;
-		case "#timelines":
-			timelines.redraw(masterCachedResultArr);
-			break;
-		case "#chronology":
-			table.redraw(masterCachedResultArr);
-			break;
-		//case "#interactions":
-		//	graphView.redraw(masterCachedResultArr, country);
-			//interactionsTable.redraw(masterCachedResultArr, country);	
-			break;
-		case "#country-selector":
-			break;
-	}
+
+	if(tabHash[selectedTab] && tabHash[selectedTab].redraw)
+		tabHash[selectedTab].redraw(masterCachedResultArr);
 }
 
 firstTime = true;
@@ -57,20 +30,19 @@ function loadNewCountry(country) {
 	
 	if(!firstTime) {
 		controls.destruct();
-		timelines.destruct();
-		map.destruct();
-		table.destruct();
-		//interactionsTable.destruct();
-		//graphView.destruct();
+		for(var t in tabHash)
+			tabHash[t].destruct();
 	}
+
+	var tabs;
 
 	loadDataset(country, redraw.bind(null, country))
 		.done(function() {
 
 				var mapPromise = new Map(country, "map");
 				
-				mapPromise.done(function(mapObj) {
-						map = mapObj;
+				mapPromise.done(function(m) {
+						mapObj = m;
 				});
 				
 				timelines = new Timelines("timelines", 
@@ -86,7 +58,11 @@ function loadNewCountry(country) {
 				controls = new Controls(ps, country);
 
 				$.when(mapPromise).done(function() {
-				
+					
+					tabHash = { "#map": mapObj,
+		     			        "#timelines": timelines,
+		     			        "#chronology": table};
+
 					if(firstTime) {
 						makeCountryList("countrySelector");
 					}
@@ -682,7 +658,7 @@ function Controls(queryTemplate, country) {
 Controls.prototype.destruct = function() {
 	//is this necessary? and what about the d3 brush listener?
 	document.getElementById("selectIncidentType").removeEventListener("change", this.selectIncidentTypeListener);
-	//document.getElementById("fatalitySizing").removeEventListener("change", this.selectIncidentTypeListener);
+	document.getElementById("fatalitySizing").removeEventListener("click", this.fatalitySizingListener);
 	document.getElementById("inputDescription").removeEventListener("keyup", this.inputDescriptionListener);
 	this.context.remove();
 	document.getElementById("inputDescription").value= '';
@@ -693,24 +669,18 @@ Controls.prototype.attachEventHandlers = function() {
 	var self = this;
 	this.selectIncidentTypeListener = function() { newMultiSelect(this,self.queryTemplate,"EVENT_TYPE"); };
 	this.inputDescriptionListener = function() { newTextInput(this,self.queryTemplate,"CONSOLIDATED_NOTES"); };
-/*
+
 	this.fatalitySizingListener = function() {
-		if(document.getElementById("fatalitySizing").children[0].children[0].checked) {
-			fatalitySizing = true; 
-		} else {
-			fatalitySizing = false;
-		}
-		//Note that this happens on all tabs simultaneously
-		//May need to queue up changes for unviewed tabs
-		map.redrawCompletely();
-		timelines.redrawCompletely();
+		fatalitySizing = !fatalitySizing;
+		mapObj.redrawCompletely();
+		timelines.redrawCompletely();	
 	}
-*/
+
 	document.getElementById("selectIncidentType")
 		.addEventListener("change", this.selectIncidentTypeListener);
 
-//	document.getElementById("fatalitySizing")
-//		.addEventListener("change", this.fatalitySizingListener);
+	document.getElementById("fatalitySizing")
+		.addEventListener("click", this.fatalitySizingListener);
 
 	document.getElementById("inputDescription")
 		.addEventListener("keyup", this.inputDescriptionListener);

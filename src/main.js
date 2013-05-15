@@ -9,46 +9,19 @@ fatalitySizing = true;
 selectedTab = "#map";
 
 masterCachedResultArr = [];
+
 function redraw(country, resultArr) {
-	switch(selectedTab) {
-		case "#map":
-			map.redraw(resultArr);
-			break;
-		case "#timelines":
-			timelines.redraw(resultArr);
-			break;
-		case "#chronology":
-			table.redraw(resultArr);
-			break;
-		case "#interactions":
-			graphView.redraw(resultArr, country);
-			//interactionsTable.redraw(resultArr, country);	
-			break;
-		case "#country-selector":
-			break;
-	}
+	
+	if(tabHash[selectedTab] && tabHash[selectedTab].redraw)
+		tabHash[selectedTab].redraw(resultArr);
 
 	masterCachedResultArr = resultArr;
 }
 
 function redrawOnTabSwitch(country) {
-	switch(selectedTab) {
-		case "#map":
-			map.redraw(masterCachedResultArr);
-			break;
-		case "#timelines":
-			timelines.redraw(masterCachedResultArr);
-			break;
-		case "#chronology":
-			table.redraw(masterCachedResultArr);
-			break;
-		//case "#interactions":
-		//	graphView.redraw(masterCachedResultArr, country);
-			//interactionsTable.redraw(masterCachedResultArr, country);	
-			break;
-		case "#country-selector":
-			break;
-	}
+
+	if(tabHash[selectedTab] && tabHash[selectedTab].redraw)
+		tabHash[selectedTab].redraw(masterCachedResultArr);
 }
 
 firstTime = true;
@@ -57,20 +30,19 @@ function loadNewCountry(country) {
 	
 	if(!firstTime) {
 		controls.destruct();
-		timelines.destruct();
-		map.destruct();
-		table.destruct();
-		//interactionsTable.destruct();
-		//graphView.destruct();
+		for(var t in tabHash)
+			tabHash[t].destruct();
 	}
+
+	var tabs;
 
 	loadDataset(country, redraw.bind(null, country))
 		.done(function() {
 
 				var mapPromise = new Map(country, "map");
 				
-				mapPromise.done(function(mapObj) {
-						map = mapObj;
+				mapPromise.done(function(m) {
+						mapObj = m;
 				});
 				
 				timelines = new Timelines("timelines", 
@@ -86,7 +58,11 @@ function loadNewCountry(country) {
 				controls = new Controls(ps, country);
 
 				$.when(mapPromise).done(function() {
-				
+					
+					tabHash = { "#map": mapObj,
+		     			        "#timelines": timelines,
+		     			        "#chronology": table};
+
 					if(firstTime) {
 						makeCountryList("countrySelector");
 					}
