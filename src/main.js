@@ -36,7 +36,7 @@ function loadNewCountry(country) {
 
 	var tabs;
 
-	loadDataset(country, redraw.bind(null, country))
+	loadDataset(country, redraw.bind(null, masterCachedResultArr))
 		.done(function() {
 
 				var mapPromise = new Map(country, "map");
@@ -70,8 +70,12 @@ function loadNewCountry(country) {
 					controls.attachEventHandlers();
 
 					$('a[data-toggle="tab"]').on('shown', function (e) {
+						//hackery; cleanup tab logic
+						if(~['#map', '#timelines', '#chronology'].indexOf(e.target.attributes.href.value)) {
 							selectedTab = e.target.attributes.href.value;
-							redrawOnTabSwitch(country);
+							$(document).scrollTop(0);
+							setTimeout(function() { redrawOnTabSwitch(country) }, 0);
+						}
 					});
 
 					if(!firstTime) {
