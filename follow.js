@@ -293,7 +293,7 @@ function Map(country, parentElement) {
 
 Map.prototype.redraw = function(resultArr) {
 		
-	var diffs = db.sets.complements(this.cachedResultArr, resultArr),
+	var var diffs = db.sets.complements(this.cachedResultArr, resultArr, function(e) { return e.arrayIndex; }),
 		enter = diffs[0],
 		exit = diffs[1];
 
@@ -444,7 +444,7 @@ function Timelines(parentElement, startDate, endDate, country) {
 
 Timelines.prototype.redraw = function(resultArr) {
 		
-	var diffs = db.sets.complements(this.cachedResultArr, resultArr),
+	var diffs = db.sets.complements(this.cachedResultArr, resultArr, function(e) { return e.arrayIndex; }),
 		enter = diffs[0],
 		exit = diffs[1];
 
@@ -515,7 +515,7 @@ function Table(parentElement, country) {
 
 Table.prototype.redraw = function(resultArr) {
 	
-	var diffs = db.sets.complements(this.cachedResultArr, resultArr),
+	var diffs = db.sets.complements(this.cachedResultArr, resultArr, function(e) { return e.arrayIndex; }),	
 		enter = diffs[0],
 		exit = diffs[1];
 
@@ -582,9 +582,7 @@ function Controls(queryTemplate, country) {
 
 	this.queryTemplate = queryTemplate;
 
-	document.getElementById("countryName").innerHTML = '<b>' + country.replace(/_/g, ' ') + '</b><br/>'
-														+ 'Use "Select Country" on the menu bar '
-														+ '<br/>to view data for other countries.';
+	document.getElementById("countryName").innerHTML = '<b>' + country.replace(/_/g, ' ') + '</b><br/>';
 
 	makeCheckBoxes("selectIncidentType", "EVENT_TYPE");
 

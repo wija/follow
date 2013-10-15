@@ -14,7 +14,7 @@ function Table(parentElement, country) {
 }
 
 Table.prototype.redraw = function(resultArr) {
-	
+
 	var diffs = db.sets.complements(this.cachedResultArr, resultArr, function(e) { return e.arrayIndex; }),	
 		enter = diffs[0],
 		exit = diffs[1];
