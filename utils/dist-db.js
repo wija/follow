@@ -128,7 +128,7 @@
 	}
 
 	//returns [elements in sArr2 not in sArr1, elements in sArr1 not in sArr2]
-	function complements(sArr1, sArr2) {
+	function complements(sArr1, sArr2, indexExtractorFn) {
 
 		var i1 = 0,
 			i2 = 0, 
@@ -136,12 +136,15 @@
 			len2 = sArr2.length, 
 			result1 = [],
 			result2 = [];
-		
+
+		//indexExtractorFn lets complements work right when called from follow
+		var indexExtractorFn = indexExtractorFn || function(e) { return e; };
+
 		while(i1 < len1 && i2 < len2) {
-			if(sArr1[i1] === sArr2[i2]) {
+			if(indexExtractorFn(sArr1[i1]) === indexExtractorFn(sArr2[i2])) {
 				i1++; 
 				i2++;
-			} else if(sArr1[i1] < sArr2[i2]) {
+			} else if(indexExtractorFn(sArr1[i1]) < indexExtractorFn(sArr2[i2])) {
 				result2.push(sArr1[i1]);
 				i1++;
 			} else {  //sArr1[i1] > sArr2[i2]
@@ -186,6 +189,14 @@
         this.indexRegistry = {};
         this.completeDataArray = completeDataArray;
         this.resultIndices = "just loaded";
+
+		/*
+        	A hack to permit complements to be used in follow.js.  Need to decide whether
+			to put this in the json-database repo or to address the issue in some other
+			way.
+		*/
+		for(var i = 0, n = completeDataArray.length; i < n; i++)
+			completeDataArray[i].arrayIndex = i;
 
         for(var field in indexMap) {
             if(indexMap.hasOwnProperty(field)) {
