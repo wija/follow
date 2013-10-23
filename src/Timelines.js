@@ -46,7 +46,7 @@ function Timelines(parentElement, startDate, endDate, country) {
 
 	this.chart = d3.select(this.panelElement).append("svg")
 					.attr("class", "chart")
-					.attr("width", this.dimensions.width) //this.dimensions.width)
+					.attr("width", this.dimensions.width)
 					.attr("height", totalHeight);
 
 	var splitCnames = cnames.map(function(s) { return s.split('|'); });
@@ -68,14 +68,13 @@ function Timelines(parentElement, startDate, endDate, country) {
     }
 
 	this.axisBox = d3.select(this.axisElement).append("svg")
-					//.attr("class", "chart")
 					.attr("left", self.corners.xTimelineRight)
-					.attr("width", self.dimensions.width) //self.corners.xTimelineRight - self.corners.xTimelineLeft)
+					.attr("width", self.dimensions.width)
 					.attr("height", 55);
 
 	this.tl = this.axisBox.append("g")
 		.attr("class", "axis")
-		.attr("transform", "translate(0,45)") //+ (maxOffset + this.corners.yTimelineBottom) + ")")
+		.attr("transform", "translate(0,20)")
 		.style("font-size", this.padding.labelHeight)
 		.style("font-family", "sans-serif");
 
@@ -84,8 +83,7 @@ function Timelines(parentElement, startDate, endDate, country) {
 		.tickFormat(d3.time.format("%b %Y"))
 		.ticks(5)
 		.orient("top")
-		.tickSize(-10) //(-totalHeight)
-		//.tickSize(this.padding.tickHeight)
+		.tickSize(-10)
 		.tickPadding(this.padding.tickToLabelHeight));
 }
 
@@ -109,8 +107,7 @@ Timelines.prototype.redraw = function(resultArr) {
 		.tickFormat(d3.time.format("%b %Y"))
 		.ticks(5)
 		.orient("top")
-		.tickSize(-10) //(-totalHeight)
-		//.tickSize(this.padding.tickHeight)
+		.tickSize(-10)
 		.tickPadding(this.padding.tickToLabelHeight));
 
 

@@ -139,6 +139,7 @@ Map.prototype.redraw = function(resultArr) {
 		circle.setAttributeNS(null, "data-fatalities", d.FATALITIES);
 		circle.setAttributeNS(null, "cy", proj[1] + d.LATITUDE_JITTER);
 		circle.setAttributeNS(null, "cx", proj[0] + d.LONGITUDE_JITTER);
+
 		if(fatalitySizing) {
 			circle.setAttributeNS(null, "r", Math.log(d.FATALITIES+1)*2 + 2);
 		} else {

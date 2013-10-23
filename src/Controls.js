@@ -9,8 +9,8 @@ function Controls(queryTemplate, country) {
 
 	this.queryTemplate = queryTemplate;
 
-	document.getElementById("countryName").innerHTML = '<b>' + country.replace(/_/g, ' ') + '</b><br/>';
-
+	document.getElementById("countryName").innerHTML = country.replace(/_/g, ' ');
+	
 	makeCheckBoxes("selectIncidentType", "EVENT_TYPE");
 
 	//has devolved into magic numbers at this point
@@ -33,7 +33,7 @@ function Controls(queryTemplate, country) {
 			  		.extent([dateFormat.parse("1/1/2011"), dateFormat.parse("1/1/2012")]);
 
 	this.context = d3.select("#dateSelector").append("svg")
-		.attr("width", this.dimensions.width)
+		//.attr("width", this.dimensions.width - 100)
 		.attr("height", 40);
 
 	this.context.append("rect")
@@ -72,6 +72,7 @@ function Controls(queryTemplate, country) {
 						+ '</svg> '
 						+ opts[i]
 						+ '</label>';
+
 		}
 
 		s.innerHTML = htmlStr;
@@ -110,6 +111,12 @@ Controls.prototype.attachEventHandlers = function() {
 	document.getElementById("inputDescription")
 		.addEventListener("keyup", this.inputDescriptionListener);
 
+	//just piggybacking on the bootstrap fn
+	$(document).on('click.bs.tab.data-api', '[data-toggle="tab"], [data-toggle="pill"]', function (e) {
+	    $(e.target).parent().children().removeClass("selected-tab");
+	    $(e.target).addClass("selected-tab");
+	});
+
 	this.brush.on("brush", brushed.bind(this));
 
 	self.queryTemplate.evaluate("CONSOLIDATED_NOTES", {selectAll: true});
@@ -130,9 +137,9 @@ Controls.prototype.attachEventHandlers = function() {
 		var child = selectObj.firstChild;
 
 		while(child) {
-	    	if(child.children[0].checked) {
-	    		options.push(child.children[0].getAttribute("data-value"));
-	    	}
+	        if(child.children[0].checked) {
+	        	options.push(child.children[0].getAttribute("data-value"));
+	        }
 	    	
 	    	child = child.nextSibling;
 		}
