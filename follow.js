@@ -593,9 +593,8 @@ function Controls(queryTemplate, country) {
 
 	this.queryTemplate = queryTemplate;
 
-
 	document.getElementById("countryName").innerHTML = country.replace(/_/g, ' ');
-
+	
 	makeCheckBoxes("selectIncidentType", "EVENT_TYPE");
 
 	//has devolved into magic numbers at this point
