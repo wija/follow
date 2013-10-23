@@ -14,8 +14,8 @@ function Table(parentElement, country) {
 }
 
 Table.prototype.redraw = function(resultArr) {
-	
-	var diffs = db.sets.complements(this.cachedResultArr, resultArr),
+
+	var diffs = db.sets.complements(this.cachedResultArr, resultArr, function(e) { return e.arrayIndex; }),	
 		enter = diffs[0],
 		exit = diffs[1];
 
@@ -46,27 +46,36 @@ Table.prototype.destruct = function() {
 	document.getElementById(this.parentElement).removeChild(this.tableContainer);
 }
 
+var formatDate = d3.time.format("%b.%e, %Y");
+
 function makeNewDiv(o) {
 
 	var newDiv = document.createElement("div");
 	newDiv.setAttribute("id", o.MY_EVENT_ID);
 	newDiv.setAttribute("data-milliseconds", new Date(o.EVENT_DATE).getTime());
-	if(o.COUNTRY.replace(/ /g, '_') === this.country) {
-		newDiv.setAttribute("class", "chronology-item current-country-item");
- 	} else {
-		newDiv.setAttribute("class", "chronology-item");
-	}
+	newDiv.setAttribute("class", "chronology-item");
 	var Act1Act2DescSrc = o.CONSOLIDATED_NOTES.split("|");
-	var newContent = "<b>" + o.EVENT_DATE
-				   + " (" + o.COUNTRY + ", " + o.ADM_LEVEL_1 + ")</b><br/>"
-				   + "<i>Description:</i> " + Act1Act2DescSrc[2] + "<br/>"
-				   + (Act1Act2DescSrc[0] === "" 
-				   		? "" 
-				   		: "<i>Actors</i>: " + Act1Act2DescSrc[0]
-				   		  + (Act1Act2DescSrc[1] === ""
-				   		  		? "<br/>"
-				   		  		: " & " + Act1Act2DescSrc[1] + "<br/>")) 
-				   + "<i>Source:</i> " +  Act1Act2DescSrc[3] + "<br/>";
+	var newContent = "<div class='left' style='border-left: 7px solid " + p.getColor(o.EVENT_TYPE) + "'>"
+				   + "<span class ='chronology-title'>" + o.ADM_LEVEL_1 + ' (' + o.COUNTRY + '), '
+				   + formatDate(new Date(o.EVENT_DATE)) + ' &mdash; </span>'
+				   + Act1Act2DescSrc[2] //+ "<br/>"
+				   //+ (Act1Act2DescSrc[0] === "" 
+				   //		? "" 
+				   //		: "<i>Actors</i>: " + Act1Act2DescSrc[0]
+				   //		  + (Act1Act2DescSrc[1] === ""
+				   //		  		? "<br/>"
+				   //		  		: " & " + Act1Act2DescSrc[1] + "<br/>")) 
+				   + " (<i>Source:</i> " +  Act1Act2DescSrc[3] + ")"
+				   + "</div>"
+				   + "<div class='right'>"
+				   + "<div class='event-type'>" + o.EVENT_TYPE + "</div>"
+				   //+ "<div class='event-circle'>"
+				   //+ '<svg width="30" height="30">'
+				   //+ '<circle cx="15" cy="15" r="' + Math.log(+o.FATALITIES+1)*2 + 2 + '" fill="' + p.getColor(o.EVENT_TYPE) + '"/>' 
+				   //+ '</svg> '
+				   //+ "</div>"
+				   + (+o.FATALITIES === 0 ? "" : "<div class='fatalities'>" + o.FATALITIES + " Killed</div>")
+				   + "</div>";
 	newDiv.innerHTML = newContent;
 	return newDiv;
 }

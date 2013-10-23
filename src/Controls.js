@@ -9,10 +9,8 @@ function Controls(queryTemplate, country) {
 
 	this.queryTemplate = queryTemplate;
 
-	document.getElementById("countryName").innerHTML = '<b>' + country.replace(/_/g, ' ') + '</b><br/>'
-														+ 'Use "Select Country" on the menu bar '
-														+ '<br/>to view data for other countries.';
-
+	document.getElementById("countryName").innerHTML = country.replace(/_/g, ' ');
+	
 	makeCheckBoxes("selectIncidentType", "EVENT_TYPE");
 
 	//has devolved into magic numbers at this point
@@ -35,7 +33,7 @@ function Controls(queryTemplate, country) {
 			  		.extent([dateFormat.parse("1/1/2011"), dateFormat.parse("1/1/2012")]);
 
 	this.context = d3.select("#dateSelector").append("svg")
-		.attr("width", this.dimensions.width)
+		//.attr("width", this.dimensions.width - 100)
 		.attr("height", 40);
 
 	this.context.append("rect")
@@ -74,6 +72,7 @@ function Controls(queryTemplate, country) {
 						+ '</svg> '
 						+ opts[i]
 						+ '</label>';
+
 		}
 
 		s.innerHTML = htmlStr;
@@ -85,7 +84,7 @@ function Controls(queryTemplate, country) {
 Controls.prototype.destruct = function() {
 	//is this necessary? and what about the d3 brush listener?
 	document.getElementById("selectIncidentType").removeEventListener("change", this.selectIncidentTypeListener);
-	//document.getElementById("fatalitySizing").removeEventListener("change", this.selectIncidentTypeListener);
+	document.getElementById("fatalitySizing").removeEventListener("click", this.fatalitySizingListener);
 	document.getElementById("inputDescription").removeEventListener("keyup", this.inputDescriptionListener);
 	this.context.remove();
 	document.getElementById("inputDescription").value= '';
@@ -96,27 +95,27 @@ Controls.prototype.attachEventHandlers = function() {
 	var self = this;
 	this.selectIncidentTypeListener = function() { newMultiSelect(this,self.queryTemplate,"EVENT_TYPE"); };
 	this.inputDescriptionListener = function() { newTextInput(this,self.queryTemplate,"CONSOLIDATED_NOTES"); };
-/*
+
 	this.fatalitySizingListener = function() {
-		if(document.getElementById("fatalitySizing").children[0].children[0].checked) {
-			fatalitySizing = true; 
-		} else {
-			fatalitySizing = false;
-		}
-		//Note that this happens on all tabs simultaneously
-		//May need to queue up changes for unviewed tabs
-		map.redrawCompletely();
-		timelines.redrawCompletely();
+		fatalitySizing = !fatalitySizing;
+		mapObj.redrawCompletely();
+		timelines.redrawCompletely();	
 	}
-*/
+
 	document.getElementById("selectIncidentType")
 		.addEventListener("change", this.selectIncidentTypeListener);
 
-//	document.getElementById("fatalitySizing")
-//		.addEventListener("change", this.fatalitySizingListener);
+	document.getElementById("fatalitySizing")
+		.addEventListener("click", this.fatalitySizingListener);
 
 	document.getElementById("inputDescription")
 		.addEventListener("keyup", this.inputDescriptionListener);
+
+	//just piggybacking on the bootstrap fn
+	$(document).on('click.bs.tab.data-api', '[data-toggle="tab"], [data-toggle="pill"]', function (e) {
+	    $(e.target).parent().children().removeClass("selected-tab");
+	    $(e.target).addClass("selected-tab");
+	});
 
 	this.brush.on("brush", brushed.bind(this));
 
@@ -138,9 +137,9 @@ Controls.prototype.attachEventHandlers = function() {
 		var child = selectObj.firstChild;
 
 		while(child) {
-	    	if(child.children[0].checked) {
-	    		options.push(child.children[0].getAttribute("data-value"));
-	    	}
+	        if(child.children[0].checked) {
+	        	options.push(child.children[0].getAttribute("data-value"));
+	        }
 	    	
 	    	child = child.nextSibling;
 		}

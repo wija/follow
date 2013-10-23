@@ -9,46 +9,19 @@ fatalitySizing = true;
 selectedTab = "#map";
 
 masterCachedResultArr = [];
+
 function redraw(country, resultArr) {
-	switch(selectedTab) {
-		case "#map":
-			map.redraw(resultArr);
-			break;
-		case "#timelines":
-			timelines.redraw(resultArr);
-			break;
-		case "#chronology":
-			table.redraw(resultArr);
-			break;
-		case "#interactions":
-			graphView.redraw(resultArr, country);
-			//interactionsTable.redraw(resultArr, country);	
-			break;
-		case "#country-selector":
-			break;
-	}
+	
+	if(tabHash[selectedTab] && tabHash[selectedTab].redraw)
+		tabHash[selectedTab].redraw(resultArr);
 
 	masterCachedResultArr = resultArr;
 }
 
 function redrawOnTabSwitch(country) {
-	switch(selectedTab) {
-		case "#map":
-			map.redraw(masterCachedResultArr);
-			break;
-		case "#timelines":
-			timelines.redraw(masterCachedResultArr);
-			break;
-		case "#chronology":
-			table.redraw(masterCachedResultArr);
-			break;
-		//case "#interactions":
-		//	graphView.redraw(masterCachedResultArr, country);
-			//interactionsTable.redraw(masterCachedResultArr, country);	
-			break;
-		case "#country-selector":
-			break;
-	}
+
+	if(tabHash[selectedTab] && tabHash[selectedTab].redraw)
+		tabHash[selectedTab].redraw(masterCachedResultArr);
 }
 
 firstTime = true;
@@ -57,20 +30,19 @@ function loadNewCountry(country) {
 	
 	if(!firstTime) {
 		controls.destruct();
-		timelines.destruct();
-		map.destruct();
-		table.destruct();
-		//interactionsTable.destruct();
-		//graphView.destruct();
+		for(var t in tabHash)
+			tabHash[t].destruct();
 	}
 
-	loadDataset(country, redraw.bind(null, country))
+	var tabs;
+
+	loadDataset(country, redraw.bind(null, masterCachedResultArr))
 		.done(function() {
 
 				var mapPromise = new Map(country, "map");
 				
-				mapPromise.done(function(mapObj) {
-						map = mapObj;
+				mapPromise.done(function(m) {
+						mapObj = m;
 				});
 				
 				timelines = new Timelines("timelines", 
@@ -86,7 +58,11 @@ function loadNewCountry(country) {
 				controls = new Controls(ps, country);
 
 				$.when(mapPromise).done(function() {
-				
+					
+					tabHash = { "#map": mapObj,
+		     			        "#timelines": timelines,
+		     			        "#chronology": table};
+
 					if(firstTime) {
 						makeCountryList("countrySelector");
 					}
@@ -94,8 +70,12 @@ function loadNewCountry(country) {
 					controls.attachEventHandlers();
 
 					$('a[data-toggle="tab"]').on('shown', function (e) {
+						//hackery; cleanup tab logic
+						if(~['#map', '#timelines', '#chronology'].indexOf(e.target.attributes.href.value)) {
 							selectedTab = e.target.attributes.href.value;
-							redrawOnTabSwitch(country);
+							$(document).scrollTop(0);
+							setTimeout(function() { redrawOnTabSwitch(country) }, 0);
+						}
 					});
 
 					if(!firstTime) {
@@ -317,7 +297,7 @@ function Map(country, parentElement) {
 
 Map.prototype.redraw = function(resultArr) {
 		
-	var diffs = db.sets.complements(this.cachedResultArr, resultArr),
+	var diffs = db.sets.complements(this.cachedResultArr, resultArr, function(e) { return e.arrayIndex; }),
 		enter = diffs[0],
 		exit = diffs[1];
 
@@ -335,6 +315,7 @@ Map.prototype.redraw = function(resultArr) {
 		circle.setAttributeNS(null, "data-fatalities", d.FATALITIES);
 		circle.setAttributeNS(null, "cy", proj[1] + d.LATITUDE_JITTER);
 		circle.setAttributeNS(null, "cx", proj[0] + d.LONGITUDE_JITTER);
+
 		if(fatalitySizing) {
 			circle.setAttributeNS(null, "r", Math.log(d.FATALITIES+1)*2 + 2);
 		} else {
@@ -423,7 +404,7 @@ function Timelines(parentElement, startDate, endDate, country) {
 
 	this.chart = d3.select(this.panelElement).append("svg")
 					.attr("class", "chart")
-					.attr("width", this.dimensions.width) //this.dimensions.width)
+					.attr("width", this.dimensions.width)
 					.attr("height", totalHeight);
 
 	var splitCnames = cnames.map(function(s) { return s.split('|'); });
@@ -445,14 +426,13 @@ function Timelines(parentElement, startDate, endDate, country) {
     }
 
 	this.axisBox = d3.select(this.axisElement).append("svg")
-					//.attr("class", "chart")
 					.attr("left", self.corners.xTimelineRight)
-					.attr("width", self.dimensions.width) //self.corners.xTimelineRight - self.corners.xTimelineLeft)
+					.attr("width", self.dimensions.width)
 					.attr("height", 55);
 
 	this.tl = this.axisBox.append("g")
 		.attr("class", "axis")
-		.attr("transform", "translate(0,45)") //+ (maxOffset + this.corners.yTimelineBottom) + ")")
+		.attr("transform", "translate(0,20)")
 		.style("font-size", this.padding.labelHeight)
 		.style("font-family", "sans-serif");
 
@@ -461,14 +441,13 @@ function Timelines(parentElement, startDate, endDate, country) {
 		.tickFormat(d3.time.format("%b %Y"))
 		.ticks(5)
 		.orient("top")
-		.tickSize(-10) //(-totalHeight)
-		//.tickSize(this.padding.tickHeight)
+		.tickSize(-10)
 		.tickPadding(this.padding.tickToLabelHeight));
 }
 
 Timelines.prototype.redraw = function(resultArr) {
 		
-	var diffs = db.sets.complements(this.cachedResultArr, resultArr),
+	var diffs = db.sets.complements(this.cachedResultArr, resultArr, function(e) { return e.arrayIndex; }),
 		enter = diffs[0],
 		exit = diffs[1];
 
@@ -486,8 +465,7 @@ Timelines.prototype.redraw = function(resultArr) {
 		.tickFormat(d3.time.format("%b %Y"))
 		.ticks(5)
 		.orient("top")
-		.tickSize(-10) //(-totalHeight)
-		//.tickSize(this.padding.tickHeight)
+		.tickSize(-10)
 		.tickPadding(this.padding.tickToLabelHeight));
 
 
@@ -538,8 +516,8 @@ function Table(parentElement, country) {
 }
 
 Table.prototype.redraw = function(resultArr) {
-	
-	var diffs = db.sets.complements(this.cachedResultArr, resultArr),
+
+	var diffs = db.sets.complements(this.cachedResultArr, resultArr, function(e) { return e.arrayIndex; }),	
 		enter = diffs[0],
 		exit = diffs[1];
 
@@ -570,27 +548,36 @@ Table.prototype.destruct = function() {
 	document.getElementById(this.parentElement).removeChild(this.tableContainer);
 }
 
+var formatDate = d3.time.format("%b.%e, %Y");
+
 function makeNewDiv(o) {
 
 	var newDiv = document.createElement("div");
 	newDiv.setAttribute("id", o.MY_EVENT_ID);
 	newDiv.setAttribute("data-milliseconds", new Date(o.EVENT_DATE).getTime());
-	if(o.COUNTRY.replace(/ /g, '_') === this.country) {
-		newDiv.setAttribute("class", "chronology-item current-country-item");
- 	} else {
-		newDiv.setAttribute("class", "chronology-item");
-	}
+	newDiv.setAttribute("class", "chronology-item");
 	var Act1Act2DescSrc = o.CONSOLIDATED_NOTES.split("|");
-	var newContent = "<b>" + o.EVENT_DATE
-				   + " (" + o.COUNTRY + ", " + o.ADM_LEVEL_1 + ")</b><br/>"
-				   + "<i>Description:</i> " + Act1Act2DescSrc[2] + "<br/>"
-				   + (Act1Act2DescSrc[0] === "" 
-				   		? "" 
-				   		: "<i>Actors</i>: " + Act1Act2DescSrc[0]
-				   		  + (Act1Act2DescSrc[1] === ""
-				   		  		? "<br/>"
-				   		  		: " & " + Act1Act2DescSrc[1] + "<br/>")) 
-				   + "<i>Source:</i> " +  Act1Act2DescSrc[3] + "<br/>";
+	var newContent = "<div class='left' style='border-left: 7px solid " + p.getColor(o.EVENT_TYPE) + "'>"
+				   + "<span class ='chronology-title'>" + o.ADM_LEVEL_1 + ' (' + o.COUNTRY + '), '
+				   + formatDate(new Date(o.EVENT_DATE)) + ' &mdash; </span>'
+				   + Act1Act2DescSrc[2] //+ "<br/>"
+				   //+ (Act1Act2DescSrc[0] === "" 
+				   //		? "" 
+				   //		: "<i>Actors</i>: " + Act1Act2DescSrc[0]
+				   //		  + (Act1Act2DescSrc[1] === ""
+				   //		  		? "<br/>"
+				   //		  		: " & " + Act1Act2DescSrc[1] + "<br/>")) 
+				   + " (<i>Source:</i> " +  Act1Act2DescSrc[3] + ")"
+				   + "</div>"
+				   + "<div class='right'>"
+				   + "<div class='event-type'>" + o.EVENT_TYPE + "</div>"
+				   //+ "<div class='event-circle'>"
+				   //+ '<svg width="30" height="30">'
+				   //+ '<circle cx="15" cy="15" r="' + Math.log(+o.FATALITIES+1)*2 + 2 + '" fill="' + p.getColor(o.EVENT_TYPE) + '"/>' 
+				   //+ '</svg> '
+				   //+ "</div>"
+				   + (+o.FATALITIES === 0 ? "" : "<div class='fatalities'>" + o.FATALITIES + " Killed</div>")
+				   + "</div>";
 	newDiv.innerHTML = newContent;
 	return newDiv;
 }
@@ -606,10 +593,8 @@ function Controls(queryTemplate, country) {
 
 	this.queryTemplate = queryTemplate;
 
-	document.getElementById("countryName").innerHTML = '<b>' + country.replace(/_/g, ' ') + '</b><br/>'
-														+ 'Use "Select Country" on the menu bar '
-														+ '<br/>to view data for other countries.';
-
+	document.getElementById("countryName").innerHTML = country.replace(/_/g, ' ');
+	
 	makeCheckBoxes("selectIncidentType", "EVENT_TYPE");
 
 	//has devolved into magic numbers at this point
@@ -632,7 +617,7 @@ function Controls(queryTemplate, country) {
 			  		.extent([dateFormat.parse("1/1/2011"), dateFormat.parse("1/1/2012")]);
 
 	this.context = d3.select("#dateSelector").append("svg")
-		.attr("width", this.dimensions.width)
+		//.attr("width", this.dimensions.width - 100)
 		.attr("height", 40);
 
 	this.context.append("rect")
@@ -671,6 +656,7 @@ function Controls(queryTemplate, country) {
 						+ '</svg> '
 						+ opts[i]
 						+ '</label>';
+
 		}
 
 		s.innerHTML = htmlStr;
@@ -682,7 +668,7 @@ function Controls(queryTemplate, country) {
 Controls.prototype.destruct = function() {
 	//is this necessary? and what about the d3 brush listener?
 	document.getElementById("selectIncidentType").removeEventListener("change", this.selectIncidentTypeListener);
-	//document.getElementById("fatalitySizing").removeEventListener("change", this.selectIncidentTypeListener);
+	document.getElementById("fatalitySizing").removeEventListener("click", this.fatalitySizingListener);
 	document.getElementById("inputDescription").removeEventListener("keyup", this.inputDescriptionListener);
 	this.context.remove();
 	document.getElementById("inputDescription").value= '';
@@ -693,27 +679,27 @@ Controls.prototype.attachEventHandlers = function() {
 	var self = this;
 	this.selectIncidentTypeListener = function() { newMultiSelect(this,self.queryTemplate,"EVENT_TYPE"); };
 	this.inputDescriptionListener = function() { newTextInput(this,self.queryTemplate,"CONSOLIDATED_NOTES"); };
-/*
+
 	this.fatalitySizingListener = function() {
-		if(document.getElementById("fatalitySizing").children[0].children[0].checked) {
-			fatalitySizing = true; 
-		} else {
-			fatalitySizing = false;
-		}
-		//Note that this happens on all tabs simultaneously
-		//May need to queue up changes for unviewed tabs
-		map.redrawCompletely();
-		timelines.redrawCompletely();
+		fatalitySizing = !fatalitySizing;
+		mapObj.redrawCompletely();
+		timelines.redrawCompletely();	
 	}
-*/
+
 	document.getElementById("selectIncidentType")
 		.addEventListener("change", this.selectIncidentTypeListener);
 
-//	document.getElementById("fatalitySizing")
-//		.addEventListener("change", this.fatalitySizingListener);
+	document.getElementById("fatalitySizing")
+		.addEventListener("click", this.fatalitySizingListener);
 
 	document.getElementById("inputDescription")
 		.addEventListener("keyup", this.inputDescriptionListener);
+
+	//just piggybacking on the bootstrap fn
+	$(document).on('click.bs.tab.data-api', '[data-toggle="tab"], [data-toggle="pill"]', function (e) {
+	    $(e.target).parent().children().removeClass("selected-tab");
+	    $(e.target).addClass("selected-tab");
+	});
 
 	this.brush.on("brush", brushed.bind(this));
 
@@ -735,9 +721,9 @@ Controls.prototype.attachEventHandlers = function() {
 		var child = selectObj.firstChild;
 
 		while(child) {
-	    	if(child.children[0].checked) {
-	    		options.push(child.children[0].getAttribute("data-value"));
-	    	}
+	        if(child.children[0].checked) {
+	        	options.push(child.children[0].getAttribute("data-value"));
+	        }
 	    	
 	    	child = child.nextSibling;
 		}
